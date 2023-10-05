@@ -22,7 +22,6 @@ namespace Veldrid.NeoDemo
         private float _yaw;
         private float _pitch;
 
-        private Vector2 _mousePressedPos;
         private bool _mousePressed = false;
         private GraphicsDevice _gd;
         private bool _useReverseDepth;
@@ -145,21 +144,14 @@ namespace Veldrid.NeoDemo
                 if (!_mousePressed)
                 {
                     _mousePressed = true;
-                    _mousePressedPos = InputTracker.MousePosition;
-                    Sdl2Native.SDL_HideCursor();
-
-                    Sdl2Native.SDL_SetWindowGrab(_window.SdlWindowHandle, true); 
+                    Sdl2Native.SDL_SetRelativeMouseMode(true);
                 }
-                Vector2 mouseDelta = _mousePressedPos - InputTracker.MousePosition;
-                Sdl2Native.SDL_WarpMouseInWindow(_window.SdlWindowHandle, _mousePressedPos.X, _mousePressedPos.Y);
-                Yaw += mouseDelta.X * 0.002f;
-                Pitch += mouseDelta.Y * 0.002f;
+                Yaw -= _window.MouseDelta.X * 0.002f;
+                Pitch -= _window.MouseDelta.Y * 0.002f;
             }
             else if(_mousePressed)
             {
-                Sdl2Native.SDL_WarpMouseInWindow(_window.SdlWindowHandle, _mousePressedPos.X, _mousePressedPos.Y);
-                Sdl2Native.SDL_SetWindowGrab(_window.SdlWindowHandle, false);
-                Sdl2Native.SDL_ShowCursor();
+                Sdl2Native.SDL_SetRelativeMouseMode(false);
                 _mousePressed = false;
             }
 
