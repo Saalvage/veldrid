@@ -13,7 +13,7 @@ namespace Veldrid.Sdl2
             string[] names;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                names = new[] { "SDL2.dll" };
+                names = new[] { "SDL3.dll" };
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
@@ -33,8 +33,8 @@ namespace Veldrid.Sdl2
             }
             else
             {
-                Debug.WriteLine("Unknown SDL platform. Attempting to load \"SDL2\"");
-                names = new[] { "SDL2.dll" };
+                Debug.WriteLine("Unknown SDL platform. Attempting to load \"SDL3\"");
+                names = new[] { "SDL3.dll" };
             }
 
             NativeLibrary lib = new NativeLibrary(names);

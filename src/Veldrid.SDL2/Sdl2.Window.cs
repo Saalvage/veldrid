@@ -12,9 +12,9 @@ namespace Veldrid.Sdl2
         public const int SDL_WINDOWPOS_CENTERED = 0x2FFF0000;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate SDL_Window SDL_CreateWindow_t(byte* title, int x, int y, int w, int h, SDL_WindowFlags flags);
+        private delegate SDL_Window SDL_CreateWindow_t(byte* title, int w, int h, SDL_WindowFlags flags);
         private static SDL_CreateWindow_t s_sdl_createWindow = LoadFunction<SDL_CreateWindow_t>("SDL_CreateWindow");
-        public static SDL_Window SDL_CreateWindow(string title, int x, int y, int w, int h, SDL_WindowFlags flags)
+        public static SDL_Window SDL_CreateWindow(string title, int w, int h, SDL_WindowFlags flags)
         {
             byte* utf8Bytes;
             if (title != null)
@@ -41,7 +41,7 @@ namespace Veldrid.Sdl2
                 utf8Bytes = null;
             }
 
-            return s_sdl_createWindow(utf8Bytes, x, y, w, h, flags);
+            return s_sdl_createWindow(utf8Bytes, w, h, flags);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -70,9 +70,9 @@ namespace Veldrid.Sdl2
         public static void SDL_SetWindowPosition(SDL_Window Sdl2Window, int x, int y) => s_setWindowPosition(Sdl2Window, x, y);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void SDL_SetWindowSize_t(SDL_Window SDL2Window, int w, int h);
+        private delegate int SDL_SetWindowSize_t(SDL_Window SDL2Window, int w, int h);
         private static SDL_SetWindowSize_t s_setWindowSize = LoadFunction<SDL_SetWindowSize_t>("SDL_SetWindowSize");
-        public static void SDL_SetWindowSize(SDL_Window Sdl2Window, int w, int h) => s_setWindowSize(Sdl2Window, w, h);
+        public static int SDL_SetWindowSize(SDL_Window Sdl2Window, int w, int h) => s_setWindowSize(Sdl2Window, w, h);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate string SDL_GetWindowTitle_t(SDL_Window SDL2Window);
@@ -178,9 +178,9 @@ namespace Veldrid.Sdl2
         public static int SDL_GetDisplayBounds(int displayIndex, Rectangle* rect) => s_sdl_getDisplayBounds(displayIndex, rect);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_GetWindowDisplayIndex_t(SDL_Window window);
-        private static SDL_GetWindowDisplayIndex_t s_sdl_getWindowDisplayIndex = LoadFunction<SDL_GetWindowDisplayIndex_t>("SDL_GetWindowDisplayIndex");
-        public static int SDL_GetWindowDisplayIndex(SDL_Window window) => s_sdl_getWindowDisplayIndex(window);
+        private delegate int SDL_GetDisplayForWindow_t(SDL_Window window);
+        private static SDL_GetDisplayForWindow_t s_SDL_GetDisplayForWindow = LoadFunction<SDL_GetDisplayForWindow_t>("SDL_GetDisplayForWindow");
+        public static int SDL_GetDisplayForWindow(SDL_Window window) => s_SDL_GetDisplayForWindow(window);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int SDL_GetCurrentDisplayMode_t(int displayIndex, SDL_DisplayMode* mode);
@@ -193,9 +193,9 @@ namespace Veldrid.Sdl2
         public static int SDL_GetDesktopDisplayMode(int displayIndex, SDL_DisplayMode* mode) => s_sdl_getDesktopDisplayMode(displayIndex, mode);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_GetNumVideoDisplays_t();
-        private static SDL_GetNumVideoDisplays_t s_sdl_getNumVideoDisplays = LoadFunction<SDL_GetNumVideoDisplays_t>("SDL_GetNumVideoDisplays");
-        public static int SDL_GetNumVideoDisplays() => s_sdl_getNumVideoDisplays();
+        private delegate int SDL_GetDisplays_t();
+        private static SDL_GetDisplays_t s_SDL_GetDisplays = LoadFunction<SDL_GetDisplays_t>("SDL_GetDisplays");
+        public static int SDL_GetDisplays() => s_SDL_GetDisplays();
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private delegate bool SDL_SetHint_t(string name, string value);

@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
+using SixLabors.ImageSharp;
 using Veldrid.ImageSharp;
 using Veldrid.NeoDemo.Objects;
 using Veldrid.StartupUtilities;
 using Veldrid.Utilities;
 using Veldrid.Sdl2;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Veldrid.NeoDemo
 {
@@ -484,12 +486,12 @@ namespace Veldrid.NeoDemo
                         {
                             ImGui.Columns(2);
                             ImGui.Text($"Name: {_controllerTracker.ControllerName}");
-                            foreach (SDL_GameControllerAxis axis in (SDL_GameControllerAxis[])Enum.GetValues(typeof(SDL_GameControllerAxis)))
+                            foreach (SDL_GamepadAxis axis in (SDL_GamepadAxis[])Enum.GetValues(typeof(SDL_GamepadAxis)))
                             {
                                 ImGui.Text($"{axis}: {_controllerTracker.GetAxis(axis)}");
                             }
                             ImGui.NextColumn();
-                            foreach (SDL_GameControllerButton button in (SDL_GameControllerButton[])Enum.GetValues(typeof(SDL_GameControllerButton)))
+                            foreach (SDL_GamepadButton button in (SDL_GamepadButton[])Enum.GetValues(typeof(SDL_GamepadButton)))
                             {
                                 ImGui.Text($"{button}: {_controllerTracker.IsPressed(button)}");
                             }

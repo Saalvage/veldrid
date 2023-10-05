@@ -141,7 +141,7 @@ namespace Veldrid.StartupUtilities
             IntPtr sdlHandle = window.SdlWindowHandle;
             SDL_SysWMinfo sysWmInfo;
             Sdl2Native.SDL_GetVersion(&sysWmInfo.version);
-            Sdl2Native.SDL_GetWMWindowInfo(sdlHandle, &sysWmInfo);
+            var i = Sdl2Native.SDL_GetWMWindowInfo(sdlHandle, &sysWmInfo, 1);
             switch (sysWmInfo.subsystem)
             {
                 case SysWMType.Windows:
@@ -253,7 +253,7 @@ namespace Veldrid.StartupUtilities
 
             SDL_SysWMinfo sysWmInfo;
             Sdl2Native.SDL_GetVersion(&sysWmInfo.version);
-            Sdl2Native.SDL_GetWMWindowInfo(sdlHandle, &sysWmInfo);
+            Sdl2Native.SDL_GetWMWindowInfo(sdlHandle, &sysWmInfo, 1);
 
             SetSDLGLContextAttributes(options, backend);
 
@@ -434,7 +434,6 @@ namespace Veldrid.StartupUtilities
 
             SDL_Window window = Sdl2Native.SDL_CreateWindow(
                 string.Empty,
-                0, 0,
                 1, 1,
                 SDL_WindowFlags.Hidden | SDL_WindowFlags.OpenGL);
             byte* error = Sdl2Native.SDL_GetError();

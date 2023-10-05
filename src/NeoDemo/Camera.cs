@@ -109,10 +109,10 @@ namespace Veldrid.NeoDemo
 
             if (_controller != null)
             {
-                float controllerLeftX = _controller.GetAxis(SDL_GameControllerAxis.LeftX);
-                float controllerLeftY = _controller.GetAxis(SDL_GameControllerAxis.LeftY);
-                float controllerTriggerL = _controller.GetAxis(SDL_GameControllerAxis.TriggerLeft);
-                float controllerTriggerR = _controller.GetAxis(SDL_GameControllerAxis.TriggerRight);
+                float controllerLeftX = _controller.GetAxis(SDL_GamepadAxis.LeftX);
+                float controllerLeftY = _controller.GetAxis(SDL_GamepadAxis.LeftY);
+                float controllerTriggerL = _controller.GetAxis(SDL_GamepadAxis.TriggerLeft);
+                float controllerTriggerR = _controller.GetAxis(SDL_GamepadAxis.TriggerRight);
 
                 if (MathF.Abs(controllerLeftX) > 0.2f)
                 {
@@ -146,26 +146,27 @@ namespace Veldrid.NeoDemo
                 {
                     _mousePressed = true;
                     _mousePressedPos = InputTracker.MousePosition;
-                    Sdl2Native.SDL_ShowCursor(0);
+                    Sdl2Native.SDL_HideCursor();
+
                     Sdl2Native.SDL_SetWindowGrab(_window.SdlWindowHandle, true); 
                 }
                 Vector2 mouseDelta = _mousePressedPos - InputTracker.MousePosition;
-                Sdl2Native.SDL_WarpMouseInWindow(_window.SdlWindowHandle, (int)_mousePressedPos.X, (int)_mousePressedPos.Y);
+                Sdl2Native.SDL_WarpMouseInWindow(_window.SdlWindowHandle, _mousePressedPos.X, _mousePressedPos.Y);
                 Yaw += mouseDelta.X * 0.002f;
                 Pitch += mouseDelta.Y * 0.002f;
             }
             else if(_mousePressed)
             {
-                Sdl2Native.SDL_WarpMouseInWindow(_window.SdlWindowHandle, (int)_mousePressedPos.X, (int)_mousePressedPos.Y);
+                Sdl2Native.SDL_WarpMouseInWindow(_window.SdlWindowHandle, _mousePressedPos.X, _mousePressedPos.Y);
                 Sdl2Native.SDL_SetWindowGrab(_window.SdlWindowHandle, false);
-                Sdl2Native.SDL_ShowCursor(1);
+                Sdl2Native.SDL_ShowCursor();
                 _mousePressed = false;
             }
 
             if (_controller != null)
             {
-                float controllerRightX = _controller.GetAxis(SDL_GameControllerAxis.RightX);
-                float controllerRightY = _controller.GetAxis(SDL_GameControllerAxis.RightY);
+                float controllerRightX = _controller.GetAxis(SDL_GamepadAxis.RightX);
+                float controllerRightY = _controller.GetAxis(SDL_GamepadAxis.RightY);
                 if (MathF.Abs(controllerRightX) > 0.2f)
                 {
                     Yaw += -controllerRightX * deltaSeconds;

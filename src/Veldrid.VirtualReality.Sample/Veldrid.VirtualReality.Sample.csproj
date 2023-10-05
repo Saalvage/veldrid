@@ -20,7 +20,7 @@
     <PackageReference Include="Veldrid.SPIRV" Version="$(VeldridSpirvVersion)" />
     <PackageReference Include="AssimpNet" Version="4.1.0" />
 
-    <Content Include="..\Veldrid.SDL2\native\win-x64\SDL2.dll" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\Veldrid.SDL2\native\win-x64\SDL3.dll" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="cat\cat.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

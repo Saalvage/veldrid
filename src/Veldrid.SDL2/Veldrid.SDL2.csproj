@@ -8,14 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)native\win-x64\SDL2.dll">
+    <Content Include="$(MSBuildThisFileDirectory)native\win-x64\SDL3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <PackagePath>runtimes/win-x64/native</PackagePath>
-      <Pack>true</Pack>
-    </Content>
-    <Content Include="$(MSBuildThisFileDirectory)native\win-x86\SDL2.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackagePath>runtimes/win-x86/native</PackagePath>
       <Pack>true</Pack>
     </Content>
     <Content Include="$(MSBuildThisFileDirectory)native\osx-x64\libsdl2.dylib">

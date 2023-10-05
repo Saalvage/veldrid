@@ -26,12 +26,12 @@ namespace Veldrid.Sdl2
     public static unsafe partial class Sdl2Native
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_NumJoysticks_t();
-        private static SDL_NumJoysticks_t s_sdl_numJoysticks = LoadFunction<SDL_NumJoysticks_t>("SDL_NumJoysticks");
+        private delegate int* SDL_GetJoysticks_t(int* count);
+        private static SDL_GetJoysticks_t s_SDL_GetJoysticks = LoadFunction<SDL_GetJoysticks_t>("SDL_GetJoysticks");
         /// <summary>
         /// Count the number of joysticks attached to the system right now.
         /// </summary>
-        public static int SDL_NumJoysticks() => s_sdl_numJoysticks();
+        public static int* SDL_GetJoysticks(int* count) => s_SDL_GetJoysticks(count);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int SDL_JoystickInstanceID_t(SDL_Joystick joystick);

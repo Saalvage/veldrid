@@ -48,20 +48,30 @@ namespace Veldrid.Sdl2
         public const int SDL_ENABLE = 1;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_ShowCursor_t(int toggle);
+        private delegate int SDL_ShowCursor_t();
         private static SDL_ShowCursor_t s_sdl_showCursor = LoadFunction<SDL_ShowCursor_t>("SDL_ShowCursor");
         /// <summary>
         /// Toggle whether or not the cursor should be shown.
         /// </summary>
-        public static int SDL_ShowCursor(int toggle) => s_sdl_showCursor(toggle);
+        public static int SDL_ShowCursor() => s_sdl_showCursor();
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void SDL_WarpMouseInWindow_t(SDL_Window window, int x, int y);
+        private delegate int SDL_HideCursor_t();
+        private static SDL_HideCursor_t s_sdl_hideCursor = LoadFunction<SDL_HideCursor_t>("SDL_HideCursor");
+        public static int SDL_HideCursor() => s_sdl_hideCursor();
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate bool SDL_CursorVisible_t();
+        private static SDL_CursorVisible_t s_sdl_cursorVisible = LoadFunction<SDL_CursorVisible_t>("SDL_CursorVisible");
+        public static bool SDL_CursorVisible() => s_sdl_cursorVisible();
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void SDL_WarpMouseInWindow_t(SDL_Window window, float x, float y);
         private static SDL_WarpMouseInWindow_t s_sdl_warpMouseInWindow = LoadFunction<SDL_WarpMouseInWindow_t>("SDL_WarpMouseInWindow");
         /// <summary>
         /// Move mouse position to the given position in the window.
         /// </summary>
-        public static void SDL_WarpMouseInWindow(SDL_Window window, int x, int y) => s_sdl_warpMouseInWindow(window, x, y);
+        public static void SDL_WarpMouseInWindow(SDL_Window window, float x, float y) => s_sdl_warpMouseInWindow(window, x, y);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int SDL_SetRelativeMouseMode_t(bool enabled);
@@ -107,12 +117,12 @@ namespace Veldrid.Sdl2
         public static SDL_Cursor SDL_CreateSystemCursor(SDL_SystemCursor id) => s_sdl_createSystemCursor(id);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void SDL_FreeCursor_t(SDL_Cursor cursor);
-        private static SDL_FreeCursor_t s_sdl_freeCursor = LoadFunction<SDL_FreeCursor_t>("SDL_FreeCursor");
+        private delegate void SDL_DestroyCursor_t(SDL_Cursor cursor);
+        private static SDL_DestroyCursor_t s_SDL_DestroyCursor = LoadFunction<SDL_DestroyCursor_t>("SDL_DestroyCursor");
         /// <summary>
         /// Free a cursor created with SDL_CreateCursor(), SDL_CreateColorCursor() or SDL_CreateSystemCursor().
         /// </summary>
-        public static void SDL_FreeCursor(SDL_Cursor cursor) => s_sdl_freeCursor(cursor);
+        public static void SDL_DestroyCursor(SDL_Cursor cursor) => s_SDL_DestroyCursor(cursor);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate SDL_Cursor SDL_GetDefaultCursor_t();

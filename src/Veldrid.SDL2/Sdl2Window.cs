@@ -70,7 +70,7 @@ namespace Veldrid.Sdl2
             }
             else
             {
-                _window = SDL_CreateWindow(title, x, y, width, height, flags);
+                _window = SDL_CreateWindow(title, width, height, flags);
                 WindowID = SDL_GetWindowID(_window);
                 Sdl2WindowRegistry.RegisterWindow(this);
                 PostWindowCreated(flags);
@@ -201,14 +201,17 @@ namespace Veldrid.Sdl2
 
         public bool CursorVisible
         {
-            get
-            {
-                return SDL_ShowCursor(SDL_QUERY) == 1;
-            }
+            get => SDL_CursorVisible();
             set
             {
-                int toggle = value ? SDL_ENABLE : SDL_DISABLE;
-                SDL_ShowCursor(toggle);
+                if (value)
+                {
+                    SDL_ShowCursor();
+                }
+                else
+                {
+                    SDL_HideCursor();
+                }
             }
         }
 
@@ -423,10 +426,6 @@ namespace Veldrid.Sdl2
                 case SDL_EventType.Terminating:
                     Close();
                     break;
-                case SDL_EventType.WindowEvent:
-                    SDL_WindowEvent windowEvent = Unsafe.Read<SDL_WindowEvent>(ev);
-                    HandleWindowEvent(windowEvent);
-                    break;
                 case SDL_EventType.KeyDown:
                 case SDL_EventType.KeyUp:
                     SDL_KeyboardEvent keyboardEvent = Unsafe.Read<SDL_KeyboardEvent>(ev);
@@ -455,12 +454,16 @@ namespace Veldrid.Sdl2
                     break;
                 case SDL_EventType.DropFile:
                 case SDL_EventType.DropBegin:
-                case SDL_EventType.DropTest:
+                case SDL_EventType.DropText:
                     SDL_DropEvent dropEvent = Unsafe.Read<SDL_DropEvent>(ev);
                     HandleDropEvent(dropEvent);
                     break;
                 default:
-                    // Ignore
+                    if (ev->type >= SDL_EventType.WindowFirst && ev->type <= SDL_EventType.WindowLast)
+                    {
+                        SDL_WindowEvent windowEvent = Unsafe.Read<SDL_WindowEvent>(ev);
+                        HandleWindowEvent(windowEvent);
+                    }
                     break;
             }
         }
@@ -954,7 +957,7 @@ namespace Veldrid.Sdl2
         {
             SDL_SysWMinfo wmInfo;
             SDL_GetVersion(&wmInfo.version);
-            SDL_GetWMWindowInfo(_window, &wmInfo);
+            SDL_GetWMWindowInfo(_window, &wmInfo, 1);
             switch (wmInfo.subsystem)
             {
                 case SysWMType.Windows:
@@ -1048,7 +1051,7 @@ namespace Veldrid.Sdl2
                 }
                 else
                 {
-                    return SDL_CreateWindow(Title, X, Y, Width, Height, WindowFlags);
+                    return SDL_CreateWindow(Title, Width, Height, WindowFlags);
                 }
             }
         }

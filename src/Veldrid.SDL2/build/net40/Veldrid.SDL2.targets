@@ -8,7 +8,7 @@
     <_Veldrid_SDL2_NativeRuntime Condition=" '$(_Veldrid_SDL2_NativeRuntime)' == '' And '$(_Veldrid_SDL2_IsWindows)' == 'true' And ('$(Prefer32Bit)' == 'false' Or '$(PlatformTarget)' == 'x64')">win-x64</_Veldrid_SDL2_NativeRuntime>
     <_Veldrid_SDL2_NativeRuntime Condition=" '$(_Veldrid_SDL2_NativeRuntime)' == '' And '$(_Veldrid_SDL2_IsWindows)' == 'true' And ('$(Prefer32Bit)' == 'true' Or '$(PlatformTarget)' == 'x86')">win-x86</_Veldrid_SDL2_NativeRuntime>
 
-    <_Veldrid_SDL2_NativeLibName Condition="'$(_Veldrid_SDL2_NativeRuntime)' == 'win-x86' Or '$(_Veldrid_SDL2_NativeRuntime)' == 'win-x64'">SDL2.dll</_Veldrid_SDL2_NativeLibName>
+    <_Veldrid_SDL2_NativeLibName Condition="'$(_Veldrid_SDL2_NativeRuntime)' == 'win-x64'">SDL3.dll</_Veldrid_SDL2_NativeLibName>
     <_Veldrid_SDL2_NativeLibName Condition="'$(_Veldrid_SDL2_NativeRuntime)' == 'osx-x64'">libsdl2.dylib</_Veldrid_SDL2_NativeLibName>
   </PropertyGroup>
   <ItemGroup>
