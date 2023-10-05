@@ -12,10 +12,8 @@ namespace Veldrid.Sdl2
         private static SDL_PumpEvents_t s_sdl_pumpEvents = LoadFunction<SDL_PumpEvents_t>("SDL_PumpEvents");
         public static void SDL_PumpEvents() => s_sdl_pumpEvents();
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_PollEvent_t(SDL_Event* @event);
-        private static SDL_PollEvent_t s_sdl_pollEvent = LoadFunction<SDL_PollEvent_t>("SDL_PollEvent");
-        public static int SDL_PollEvent(SDL_Event* @event) => s_sdl_pollEvent(@event);
+        [DllImport("SDL2")]
+        public static extern int SDL_PollEvent(SDL_Event* @event);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void SDL_AddEventWatch_t(SDL_EventFilter filter, void* userdata);
