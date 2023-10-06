@@ -458,12 +458,44 @@ namespace Veldrid.Sdl2
                     SDL_DropEvent dropEvent = Unsafe.Read<SDL_DropEvent>(ev);
                     HandleDropEvent(dropEvent);
                     break;
+                case SDL_EventType.WindowResized:
+                case SDL_EventType.WindowPixelSizeChanged:
+                case SDL_EventType.WindowMinimized:
+                case SDL_EventType.WindowMaximized:
+                case SDL_EventType.WindowRestored:
+                    HandleResizedMessage();
+                    break;
+                case SDL_EventType.WindowFocusGained:
+                    FocusGained?.Invoke();
+                    break;
+                case SDL_EventType.WindowFocusLost:
+                    FocusLost?.Invoke();
+                    break;
+                case SDL_EventType.WindowCloseRequested:
+                    Close();
+                    break;
+                case SDL_EventType.WindowShown:
+                    Shown?.Invoke();
+                    break;
+                case SDL_EventType.WindowHidden:
+                    Hidden?.Invoke();
+                    break;
+                case SDL_EventType.WindowMouseEnter:
+                    MouseEntered?.Invoke();
+                    break;
+                case SDL_EventType.WindowMouseLeave:
+                    MouseLeft?.Invoke();
+                    break;
+                case SDL_EventType.WindowExposed:
+                    Exposed?.Invoke();
+                    break;
+                case SDL_EventType.WindowMoved:
+                    SDL_WindowEvent windowEvent = Unsafe.Read<SDL_WindowEvent>(ev);
+                    _cachedPosition.Value = new Point(windowEvent.data1, windowEvent.data2);
+                    Moved?.Invoke(new Point(windowEvent.data1, windowEvent.data2));
+                    break;
                 default:
-                    if (ev->type >= SDL_EventType.WindowFirst && ev->type <= SDL_EventType.WindowLast)
-                    {
-                        SDL_WindowEvent windowEvent = Unsafe.Read<SDL_WindowEvent>(ev);
-                        HandleWindowEvent(windowEvent);
-                    }
+                    // Ignore
                     break;
             }
         }
@@ -850,51 +882,6 @@ namespace Veldrid.Sdl2
             }
 
             return mods;
-        }
-
-        private void HandleWindowEvent(SDL_WindowEvent windowEvent)
-        {
-            switch (windowEvent.@event)
-            {
-                case SDL_WindowEventID.Resized:
-                case SDL_WindowEventID.SizeChanged:
-                case SDL_WindowEventID.Minimized:
-                case SDL_WindowEventID.Maximized:
-                case SDL_WindowEventID.Restored:
-                    HandleResizedMessage();
-                    break;
-                case SDL_WindowEventID.FocusGained:
-                    FocusGained?.Invoke();
-                    break;
-                case SDL_WindowEventID.FocusLost:
-                    FocusLost?.Invoke();
-                    break;
-                case SDL_WindowEventID.Close:
-                    Close();
-                    break;
-                case SDL_WindowEventID.Shown:
-                    Shown?.Invoke();
-                    break;
-                case SDL_WindowEventID.Hidden:
-                    Hidden?.Invoke();
-                    break;
-                case SDL_WindowEventID.Enter:
-                    MouseEntered?.Invoke();
-                    break;
-                case SDL_WindowEventID.Leave:
-                    MouseLeft?.Invoke();
-                    break;
-                case SDL_WindowEventID.Exposed:
-                    Exposed?.Invoke();
-                    break;
-                case SDL_WindowEventID.Moved:
-                    _cachedPosition.Value = new Point(windowEvent.data1, windowEvent.data2);
-                    Moved?.Invoke(new Point(windowEvent.data1, windowEvent.data2));
-                    break;
-                default:
-                    Debug.WriteLine("Unhandled SDL WindowEvent: " + windowEvent.@event);
-                    break;
-            }
         }
 
         private void HandleResizedMessage()
