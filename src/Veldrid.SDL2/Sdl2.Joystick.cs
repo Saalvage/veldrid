@@ -27,18 +27,18 @@ namespace Veldrid.Sdl2
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int* SDL_GetJoysticks_t(int* count);
-        private static SDL_GetJoysticks_t s_SDL_GetJoysticks = LoadFunction<SDL_GetJoysticks_t>("SDL_GetJoysticks");
+        private static SDL_GetJoysticks_t s_sdl_getJoysticks = LoadFunction<SDL_GetJoysticks_t>("SDL_GetJoysticks");
         /// <summary>
         /// Count the number of joysticks attached to the system right now.
         /// </summary>
-        public static int* SDL_GetJoysticks(int* count) => s_SDL_GetJoysticks(count);
+        public static int* SDL_GetJoysticks(int* count) => s_sdl_getJoysticks(count);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_JoystickInstanceID_t(SDL_Joystick joystick);
-        private static SDL_JoystickInstanceID_t s_sdl_joystickInstanceID = Sdl2Native.LoadFunction<SDL_JoystickInstanceID_t>("SDL_JoystickInstanceID");
+        private delegate int SDL_GetJoystickInstanceID_t(SDL_Joystick joystick);
+        private static SDL_GetJoystickInstanceID_t s_sdl_getJoystickInstanceID = LoadFunction<SDL_GetJoystickInstanceID_t>("SDL_GetJoystickInstanceID");
         /// <summary>
         /// Returns the instance ID of the specified joystick on success or a negative error code on failure; call SDL_GetError() for more information.
         /// </summary>
-        public static int SDL_JoystickInstanceID(SDL_Joystick joystick) => s_sdl_joystickInstanceID(joystick);
+        public static uint SDL_GetJoystickInstanceID(SDL_Joystick joystick) => s_sdl_getJoystickInstanceID(joystick);
     }
 }

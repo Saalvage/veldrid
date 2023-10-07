@@ -179,8 +179,8 @@ namespace Veldrid.Sdl2
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int SDL_GetDisplayForWindow_t(SDL_Window window);
-        private static SDL_GetDisplayForWindow_t s_SDL_GetDisplayForWindow = LoadFunction<SDL_GetDisplayForWindow_t>("SDL_GetDisplayForWindow");
-        public static int SDL_GetDisplayForWindow(SDL_Window window) => s_SDL_GetDisplayForWindow(window);
+        private static SDL_GetDisplayForWindow_t s_sdl_getDisplayForWindow = LoadFunction<SDL_GetDisplayForWindow_t>("SDL_GetDisplayForWindow");
+        public static int SDL_GetDisplayForWindow(SDL_Window window) => s_sdl_getDisplayForWindow(window);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int SDL_GetCurrentDisplayMode_t(int displayIndex, SDL_DisplayMode* mode);
@@ -194,8 +194,8 @@ namespace Veldrid.Sdl2
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int SDL_GetDisplays_t();
-        private static SDL_GetDisplays_t s_SDL_GetDisplays = LoadFunction<SDL_GetDisplays_t>("SDL_GetDisplays");
-        public static int SDL_GetDisplays() => s_SDL_GetDisplays();
+        private static SDL_GetDisplays_t s_sdl_getDisplays = LoadFunction<SDL_GetDisplays_t>("SDL_GetDisplays");
+        public static int SDL_GetDisplays() => s_sdl_getDisplays();
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private delegate bool SDL_SetHint_t(string name, string value);

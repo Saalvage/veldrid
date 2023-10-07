@@ -41,12 +41,8 @@ namespace Veldrid.Sdl2
         Hand
     }
 
-    public static unsafe partial class Sdl2Native
+    public static partial class Sdl2Native
     {
-        public const int SDL_QUERY = -1;
-        public const int SDL_DISABLE = 0;
-        public const int SDL_ENABLE = 1;
-
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int SDL_ShowCursor_t();
         private static SDL_ShowCursor_t s_sdl_showCursor = LoadFunction<SDL_ShowCursor_t>("SDL_ShowCursor");
@@ -118,11 +114,11 @@ namespace Veldrid.Sdl2
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void SDL_DestroyCursor_t(SDL_Cursor cursor);
-        private static SDL_DestroyCursor_t s_SDL_DestroyCursor = LoadFunction<SDL_DestroyCursor_t>("SDL_DestroyCursor");
+        private static SDL_DestroyCursor_t s_sdl_DestroyCursor = LoadFunction<SDL_DestroyCursor_t>("SDL_DestroyCursor");
         /// <summary>
         /// Free a cursor created with SDL_CreateCursor(), SDL_CreateColorCursor() or SDL_CreateSystemCursor().
         /// </summary>
-        public static void SDL_DestroyCursor(SDL_Cursor cursor) => s_SDL_DestroyCursor(cursor);
+        public static void SDL_DestroyCursor(SDL_Cursor cursor) => s_sdl_DestroyCursor(cursor);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate SDL_Cursor SDL_GetDefaultCursor_t();

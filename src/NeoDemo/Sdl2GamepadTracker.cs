@@ -7,9 +7,9 @@ using static Veldrid.Sdl2.Sdl2Native;
 
 namespace Veldrid.NeoDemo
 {
-    public class Sdl2ControllerTracker : IDisposable
+    public class Sdl2GamepadTracker : IDisposable
     {
-        private readonly int _controllerIndex;
+        private readonly uint _controllerId;
         private readonly SDL_Gamepad _controller;
 
         public string ControllerName { get; }
@@ -17,12 +17,12 @@ namespace Veldrid.NeoDemo
         private readonly Dictionary<SDL_GamepadAxis, float> _axisValues = new Dictionary<SDL_GamepadAxis, float>();
         private readonly Dictionary<SDL_GamepadButton, bool> _buttons = new Dictionary<SDL_GamepadButton, bool>();
 
-        public unsafe Sdl2ControllerTracker(int index)
+        public unsafe Sdl2GamepadTracker(uint index)
         {
             _controller = SDL_OpenGamepad(index);
-            SDL_Joystick joystick = SDL_GamepadGetJoystick(_controller);
-            _controllerIndex = SDL_JoystickInstanceID(joystick);
-            ControllerName = "COCK";// Marshal.PtrToStringUTF8((IntPtr)SDL_GamepadName(_controller));
+            SDL_Joystick joystick = SDL_GetGamepadJoystick(_controller);
+            _controllerId = SDL_GetJoystickInstanceID(joystick);
+            ControllerName = Marshal.PtrToStringUTF8((IntPtr)SDL_GetGamepadName(_controller));
             Sdl2Events.Subscribe(ProcessEvent);
         }
 
@@ -38,7 +38,7 @@ namespace Veldrid.NeoDemo
             return ret;
         }
 
-        public static unsafe bool CreateDefault(out Sdl2ControllerTracker sct)
+        public static unsafe bool CreateDefault(out Sdl2GamepadTracker sct)
         {
             int jsCount;
             var ret = SDL_GetJoysticks(&jsCount);
@@ -46,7 +46,7 @@ namespace Veldrid.NeoDemo
             {
                 if (SDL_IsGamepad(ret[i]))
                 {
-                    sct = new Sdl2ControllerTracker(i);
+                    sct = new Sdl2GamepadTracker(i);
                     return true;
                 }
             }
@@ -60,16 +60,16 @@ namespace Veldrid.NeoDemo
             switch (ev.type)
             {
                 case SDL_EventType.GamepadAxisMotion:
-                    SDL_ControllerAxisEvent axisEvent = Unsafe.As<SDL_Event, SDL_ControllerAxisEvent>(ref ev);
-                    if (axisEvent.which == _controllerIndex)
+                    SDL_GamepadAxisEvent axisEvent = Unsafe.As<SDL_Event, SDL_GamepadAxisEvent>(ref ev);
+                    if (axisEvent.which == _controllerId)
                     {
                         _axisValues[axisEvent.axis] = Normalize(axisEvent.value);
                     }
                     break;
                 case SDL_EventType.GamepadButtonDown:
                 case SDL_EventType.GamepadButtonUp:
-                    SDL_ControllerButtonEvent buttonEvent = Unsafe.As<SDL_Event, SDL_ControllerButtonEvent>(ref ev);
-                    if (buttonEvent.which == _controllerIndex)
+                    SDL_GamepadButtonEvent buttonEvent = Unsafe.As<SDL_Event, SDL_GamepadButtonEvent>(ref ev);
+                    if (buttonEvent.which == _controllerId)
                     {
                         _buttons[buttonEvent.button] = buttonEvent.state == 1;
                     }

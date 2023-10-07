@@ -23,14 +23,14 @@ namespace Veldrid.Sdl2
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct SDL_ControllerAxisEvent
+    public struct SDL_GamepadAxisEvent
     {
         /// <summary>
         /// SDL_CONTROLLERAXISMOTION.
         /// </summary>
         public uint type;
         /// <summary>
-        /// In milliseconds, populated using SDL_GetTicks().
+        /// In nanoseconds, populated using SDL_GetTicksNS().
         /// </summary>
         public ulong timestamp;
         /// <summary>
@@ -52,14 +52,14 @@ namespace Veldrid.Sdl2
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct SDL_ControllerButtonEvent
+    public struct SDL_GamepadButtonEvent
     {
         /// <summary>
         /// SDL_CONTROLLERBUTTONDOWN or SDL_CONTROLLERBUTTONUP.
         /// </summary>
         public uint type;
         /// <summary>
-        /// In milliseconds, populated using SDL_GetTicks().
+        /// In nanoseconds, populated using SDL_GetTicksNS().
         /// </summary>
         public ulong timestamp;
         /// <summary>
@@ -79,14 +79,14 @@ namespace Veldrid.Sdl2
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct SDL_ControllerDeviceEvent
+    public struct SDL_GamepadDeviceEvent
     {
         /// <summary>
         /// SDL_CONTROLLERDEVICEADDED, SDL_CONTROLLERDEVICEREMOVED, or SDL_CONTROLLERDEVICEREMAPPED.
         /// </summary>
         public uint type;
         /// <summary>
-        /// In milliseconds, populated using SDL_GetTicks().
+        /// In nanoseconds, populated using SDL_GetTicksNS().
         /// </summary>
         public ulong timestamp;
         /// <summary>
@@ -141,141 +141,153 @@ namespace Veldrid.Sdl2
     public static unsafe partial class Sdl2Native
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate SDL_Gamepad SDL_OpenGamepad_t(int joystick_index);
-        private static SDL_OpenGamepad_t s_SDL_OpenGamepad = LoadFunction<SDL_OpenGamepad_t>("SDL_OpenGamepad");
+        private delegate SDL_Gamepad SDL_OpenGamepad_t(uint instance_id);
+        private static SDL_OpenGamepad_t s_sdl_openGamepad = LoadFunction<SDL_OpenGamepad_t>("SDL_OpenGamepad");
         /// <summary>
         /// Open a game controller for use.
         /// The index passed as an argument refers to the N'th game controller on the system. This index is not the value which
         /// will identify this controller in future controller events. The joystick's instance id will be used there instead.
         /// </summary>
         /// <returns>A controller identifier, or NULL if an error occurred.</returns>
-        public static SDL_Gamepad SDL_OpenGamepad(int joystick_index) => s_SDL_OpenGamepad(joystick_index);
+        public static SDL_Gamepad SDL_OpenGamepad(uint instance_id) => s_sdl_openGamepad(instance_id);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void SDL_CloseGamepad_t(SDL_Gamepad gamecontroller);
-        private static SDL_CloseGamepad_t s_SDL_CloseGamepad = LoadFunction<SDL_CloseGamepad_t>("SDL_CloseGamepad");
+        private delegate void SDL_CloseGamepad_t(SDL_Gamepad gamepad);
+        private static SDL_CloseGamepad_t s_sdl_closeGamepad = LoadFunction<SDL_CloseGamepad_t>("SDL_CloseGamepad");
         /// <summary>
         /// Close a controller previously opened with SDL_OpenGamepad().
         /// </summary>
-        public static void SDL_CloseGamepad(SDL_Gamepad gamecontroller) => s_SDL_CloseGamepad(gamecontroller);
+        public static void SDL_CloseGamepad(SDL_Gamepad gamepad) => s_sdl_closeGamepad(gamepad);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_IsGamepad_t(int joystick_index);
-        private static SDL_IsGamepad_t s_SDL_IsGamepad = LoadFunction<SDL_IsGamepad_t>("SDL_IsGamepad");
+        private delegate int SDL_IsGamepad_t(uint instance_id);
+        private static SDL_IsGamepad_t s_sdl_isGamepad = LoadFunction<SDL_IsGamepad_t>("SDL_IsGamepad");
         /// <summary>
         /// Is the joystick on this index supported by the game controller interface?
         /// </summary>
-        public static bool SDL_IsGamepad(int joystick_index) => s_SDL_IsGamepad(joystick_index) != 0;
+        public static bool SDL_IsGamepad(uint instance_id) => s_sdl_isGamepad(instance_id) != 0;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate byte* SDL_GetGamepadInstanceName_t(int instance_id);
-        private static SDL_GetGamepadInstanceName_t s_SDL_GetGamepadInstanceName = LoadFunction<SDL_GetGamepadInstanceName_t>("SDL_GetGamepadInstanceName");
+        private delegate byte* SDL_GetGamepadInstanceName_t(uint instance_id);
+        private static SDL_GetGamepadInstanceName_t s_sdl_getGamepadInstanceName = LoadFunction<SDL_GetGamepadInstanceName_t>("SDL_GetGamepadInstanceName");
         /// <summary>
         /// Get the implementation dependent name of a game controller.
         /// This can be called before any controllers are opened.
         /// If no name can be found, this function returns null.
         /// </summary>
-        public static byte* SDL_GetGamepadInstanceName(int joystick_index) => s_SDL_GetGamepadInstanceName(joystick_index);
+        public static byte* SDL_GetGamepadInstanceName(uint instance_id) => s_sdl_getGamepadInstanceName(instance_id);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate SDL_Gamepad SDL_GamepadFromInstanceID_t(int joyid);
-        private static SDL_GamepadFromInstanceID_t s_SDL_GamepadFromInstanceID = LoadFunction<SDL_GamepadFromInstanceID_t>("SDL_GamepadFromInstanceID");
+        private delegate SDL_Gamepad SDL_GetGamepadFromInstanceID_t(uint instance_id);
+        private static SDL_GetGamepadFromInstanceID_t s_sdl_getGamepadFromInstanceID = LoadFunction<SDL_GetGamepadFromInstanceID_t>("SDL_GetGamepadFromInstanceID");
         /// <summary>
         /// Return the SDL_Gamepad associated with an instance id.
         /// </summary>
-        public static SDL_Gamepad SDL_GamepadFromInstanceID(int joyid) => s_SDL_GamepadFromInstanceID(joyid);
+        public static SDL_Gamepad SDL_GetGamepadFromInstanceID(uint instance_id) => s_sdl_getGamepadFromInstanceID(instance_id);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate byte* SDL_GamepadName_t(SDL_Gamepad gamecontroller);
-        private static SDL_GamepadName_t s_SDL_GamepadName = LoadFunction<SDL_GamepadName_t>("SDL_GamepadName");
+        private delegate byte* SDL_GetGamepadName_t(SDL_Gamepad gamepad);
+        private static SDL_GetGamepadName_t s_sdl_getGamepadName = LoadFunction<SDL_GetGamepadName_t>("SDL_GetGamepadName");
         /// <summary>
         /// Return the name for this currently opened controller.
         /// </summary>
-        public static byte* SDL_GamepadName(SDL_Gamepad gamecontroller) => s_SDL_GamepadName(gamecontroller);
+        public static byte* SDL_GetGamepadName(SDL_Gamepad gamepad) => s_sdl_getGamepadName(gamepad);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate ushort SDL_GamepadGetVendor_t(SDL_Gamepad gamecontroller);
-        private static SDL_GamepadGetVendor_t s_SDL_GamepadGetVendor = LoadFunction<SDL_GamepadGetVendor_t>("SDL_GamepadGetVendor");
+        private delegate ushort SDL_GetGamepadVendor_t(SDL_Gamepad gamepad);
+        private static SDL_GetGamepadVendor_t s_sdl_getGamepadVendor = LoadFunction<SDL_GetGamepadVendor_t>("SDL_GetGamepadVendor");
         /// <summary>
         /// Get the USB vendor ID of an opened controller, if available.
         /// If the vendor ID isn't available this function returns 0.
         /// </summary>
-        public static ushort SDL_GamepadGetVendor(SDL_Gamepad gamecontroller) => s_SDL_GamepadGetVendor(gamecontroller);
+        public static ushort SDL_GetGamepadVendor(SDL_Gamepad gamepad) => s_sdl_getGamepadVendor(gamepad);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate ushort SDL_GamepadGetProduct_t(SDL_Gamepad gamecontroller);
-        private static SDL_GamepadGetProduct_t s_SDL_GamepadGetProduct = LoadFunction<SDL_GamepadGetProduct_t>("SDL_GamepadGetProduct");
+        private delegate ushort SDL_GetGamepadProduct_t(SDL_Gamepad gamepad);
+        private static SDL_GetGamepadProduct_t s_sdl_getGamepadProduct = LoadFunction<SDL_GetGamepadProduct_t>("SDL_GetGamepadProduct");
         /// <summary>
         /// Get the USB product ID of an opened controller, if available.
         /// If the product ID isn't available this function returns 0.
         /// </summary>
-        public static ushort SDL_GamepadGetProduct(SDL_Gamepad gamecontroller) => s_SDL_GamepadGetProduct(gamecontroller);
+        public static ushort SDL_GetGamepadProduct(SDL_Gamepad gamepad) => s_sdl_getGamepadProduct(gamepad);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate ushort SDL_GamepadGetProductVersion_t(SDL_Gamepad gamecontroller);
-        private static SDL_GamepadGetProductVersion_t s_SDL_GamepadGetProductVersion = LoadFunction<SDL_GamepadGetProductVersion_t>("SDL_GamepadGetProductVersion");
+        private delegate ushort SDL_GetGamepadProductVersion_t(SDL_Gamepad gamepad);
+        private static SDL_GetGamepadProductVersion_t s_sdl_getGamepadProductVersion = LoadFunction<SDL_GetGamepadProductVersion_t>("SDL_GetGamepadProductVersion");
         /// <summary>
         /// Get the product version of an opened controller, if available.
         /// If the product version isn't available this function returns 0.
         /// </summary>
-        public static ushort SDL_GamepadGetProductVersion(SDL_Gamepad gamecontroller) => s_SDL_GamepadGetProductVersion(gamecontroller);
+        public static ushort SDL_GetGamepadProductVersion(SDL_Gamepad gamepad) => s_sdl_getGamepadProductVersion(gamepad);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_GamepadGetAttached_t(SDL_Gamepad gamecontroller);
-        private static SDL_GamepadGetAttached_t s_SDL_GamepadGetAttached = LoadFunction<SDL_GamepadGetAttached_t>("SDL_GamepadGetAttached");
+        private delegate int SDL_GamepadConnected_t(SDL_Gamepad gamepad);
+        private static SDL_GamepadConnected_t s_sdl_gamepadConnected = LoadFunction<SDL_GamepadConnected_t>("SDL_GamepadConnected");
         /// <summary>
         /// Returns 1 if the controller has been opened and currently connected, or 0 if it has not.
         /// </summary>
-        public static int SDL_GamepadGetAttached(SDL_Gamepad gamecontroller) => s_SDL_GamepadGetAttached(gamecontroller);
+        public static int SDL_GamepadConnected(SDL_Gamepad gamepad) => s_sdl_gamepadConnected(gamepad);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate SDL_Joystick SDL_GamepadGetJoystick_t(SDL_Gamepad gamecontroller);
-        private static SDL_GamepadGetJoystick_t s_SDL_GamepadGetJoystick = LoadFunction<SDL_GamepadGetJoystick_t>("SDL_GamepadGetJoystick");
+        private delegate SDL_Joystick SDL_GetGamepadJoystick_t(SDL_Gamepad gamepad);
+        private static SDL_GetGamepadJoystick_t s_sdl_getGamepadJoystick = LoadFunction<SDL_GetGamepadJoystick_t>("SDL_GetGamepadJoystick");
         /// <summary>
         /// Get the underlying joystick object used by a controller.
         /// </summary>
-        public static SDL_Joystick SDL_GamepadGetJoystick(SDL_Gamepad gamecontroller) => s_SDL_GamepadGetJoystick(gamecontroller);
+        public static SDL_Joystick SDL_GetGamepadJoystick(SDL_Gamepad gamepad) => s_sdl_getGamepadJoystick(gamepad);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_GamepadEventState_t(int state);
-        private static SDL_GamepadEventState_t s_SDL_GamepadEventState = LoadFunction<SDL_GamepadEventState_t>("SDL_GamepadEventState");
+        private delegate bool SDL_GamepadEventsEnabled_t();
+        private static SDL_GamepadEventsEnabled_t s_sdl_gamepadEventsEnabled = LoadFunction<SDL_GamepadEventsEnabled_t>("SDL_GamepadEventsEnabled");
         /// <summary>
-        /// Enable/disable controller event polling.
-        /// If controller events are disabled, you must call SDL_GamepadUpdate()
-        /// yourself and check the state of the controller when you want controller
+        /// Query the state of gamepad event processing.
+        /// Returns true if gamepad events are being processed, false otherwise.
+        /// If gamepad events are disabled, you must call SDL_UpdateGamepads()
+        /// yourself and check the state of the gamepad when you want gamepad
         /// information.
-        /// The state can be one of SDL_QUERY, SDL_ENABLE or SDL_IGNORE.
         /// </summary>
-        public static int SDL_GamepadEventState(int state) => s_SDL_GamepadEventState(state);
+        public static bool SDL_GamepadEventsEnabled() => s_sdl_gamepadEventsEnabled();
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void SDL_GamepadUpdate_t();
-        private static SDL_GamepadUpdate_t s_SDL_GamepadUpdate = LoadFunction<SDL_GamepadUpdate_t>("SDL_GamepadUpdate");
+        private delegate void SDL_SetGamepadEventsEnabled_t(bool enabled);
+        private static SDL_SetGamepadEventsEnabled_t s_sdl_setGamepadEventsEnabled = LoadFunction<SDL_SetGamepadEventsEnabled_t>("SDL_SetGamepadEventsEnabled");
+        /// <summary>
+        /// Set the state of gamepad event processing.
+        /// enabled	whether to process gamepad events or not
+        /// If gamepad events are disabled, you must call SDL_UpdateGamepads()
+        /// yourself and check the state of the gamepad when you want gamepad
+        /// information.
+        /// </summary>
+        public static void SDL_SetGamepadEventsEnabled(bool enabled) => s_sdl_setGamepadEventsEnabled(enabled);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void SDL_UpdateGamepads_t();
+        private static SDL_UpdateGamepads_t s_sdl_UpdateGamepads = LoadFunction<SDL_UpdateGamepads_t>("SDL_UpdateGamepads");
         /// <summary>
         /// Update the current state of the open game controllers.
         /// This is called automatically by the event loop if any game controller
         /// events are enabled.
         /// </summary>
-        public static void SDL_GamepadUpdate() => s_SDL_GamepadUpdate();
+        public static void SDL_UpdateGamepads() => s_sdl_UpdateGamepads();
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate short SDL_GamepadGetAxis_t(SDL_Gamepad gamecontroller, SDL_GamepadAxis axis);
-        private static SDL_GamepadGetAxis_t s_SDL_GamepadGetAxis = LoadFunction<SDL_GamepadGetAxis_t>("SDL_GamepadGetAxis");
+        private delegate short SDL_GetGamepadAxis_t(SDL_Gamepad gamepad, SDL_GamepadAxis axis);
+        private static SDL_GetGamepadAxis_t s_sdl_getGamepadAxis = LoadFunction<SDL_GetGamepadAxis_t>("SDL_GetGamepadAxis");
         /// <summary>
         /// Get the current state of an axis control on a game controller.
         /// The state is a value ranging from -32768 to 32767 (except for the triggers,
         /// which range from 0 to 32767).
         /// The axis indices start at index 0.
         /// </summary>
-        public static short SDL_GamepadGetAxis(SDL_Gamepad gamecontroller, SDL_GamepadAxis axis) => s_SDL_GamepadGetAxis(gamecontroller, axis);
+        public static short SDL_GetGamepadAxis(SDL_Gamepad gamepad, SDL_GamepadAxis axis) => s_sdl_getGamepadAxis(gamepad, axis);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate byte SDL_GamepadGetButton_t(SDL_Gamepad gamecontroller, SDL_GamepadButton button);
-        private static SDL_GamepadGetButton_t s_SDL_GamepadGetButton = LoadFunction<SDL_GamepadGetButton_t>("SDL_GamepadGetButton");
+        private delegate byte SDL_GetGamepadButton_t(SDL_Gamepad gamepad, SDL_GamepadButton button);
+        private static SDL_GetGamepadButton_t s_sdl_getGamepadButton = LoadFunction<SDL_GetGamepadButton_t>("SDL_GetGamepadButton");
         /// <summary>
         /// Get the current state of a button on a game controller.
         /// The button indices start at index 0.
         /// </summary>
-        public static byte SDL_GamepadGetButton(SDL_Gamepad gamecontroller, SDL_GamepadButton button) => s_SDL_GamepadGetButton(gamecontroller, button);
+        public static byte SDL_GetGamepadButton(SDL_Gamepad gamepad, SDL_GamepadButton button) => s_sdl_getGamepadButton(gamepad, button);
     }
 }
