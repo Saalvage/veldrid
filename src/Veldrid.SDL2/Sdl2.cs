@@ -17,19 +17,11 @@ namespace Veldrid.Sdl2
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                names = new[]
-                {
-                    "libSDL2-2.0.so",
-                    "libSDL2-2.0.so.0",
-                    "libSDL2-2.0.so.1",
-                };
+                names = new[] { "libSDL3.so" };
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                names = new[]
-                {
-                    "libSDL3.dylib"
-                };
+                names = new[] { "libSDL3.dylib" };
             }
             else
             {
