@@ -9,7 +9,7 @@ namespace Veldrid.NeoDemo
 {
     public class Sdl2GamepadTracker : IDisposable
     {
-        private readonly uint _controllerId;
+        private readonly uint _controllerID;
         private readonly SDL_Gamepad _controller;
 
         public string ControllerName { get; }
@@ -17,11 +17,11 @@ namespace Veldrid.NeoDemo
         private readonly Dictionary<SDL_GamepadAxis, float> _axisValues = new Dictionary<SDL_GamepadAxis, float>();
         private readonly Dictionary<SDL_GamepadButton, bool> _buttons = new Dictionary<SDL_GamepadButton, bool>();
 
-        public unsafe Sdl2GamepadTracker(uint index)
+        public unsafe Sdl2GamepadTracker(uint id)
         {
-            _controller = SDL_OpenGamepad(index);
+            _controller = SDL_OpenGamepad(id);
             SDL_Joystick joystick = SDL_GetGamepadJoystick(_controller);
-            _controllerId = SDL_GetJoystickInstanceID(joystick);
+            _controllerID = SDL_GetJoystickInstanceID(joystick);
             ControllerName = Marshal.PtrToStringUTF8((IntPtr)SDL_GetGamepadName(_controller));
             Sdl2Events.Subscribe(ProcessEvent);
         }
@@ -42,11 +42,11 @@ namespace Veldrid.NeoDemo
         {
             int jsCount;
             var ret = SDL_GetJoysticks(&jsCount);
-            for (int i = 0; i < jsCount; i++)
+            for (uint i = 0; i < jsCount; i++)
             {
                 if (SDL_IsGamepad(ret[i]))
                 {
-                    sct = new Sdl2GamepadTracker(i);
+                    sct = new Sdl2GamepadTracker(ret[i]);
                     return true;
                 }
             }
@@ -61,7 +61,7 @@ namespace Veldrid.NeoDemo
             {
                 case SDL_EventType.GamepadAxisMotion:
                     SDL_GamepadAxisEvent axisEvent = Unsafe.As<SDL_Event, SDL_GamepadAxisEvent>(ref ev);
-                    if (axisEvent.which == _controllerId)
+                    if (axisEvent.which == _controllerID)
                     {
                         _axisValues[axisEvent.axis] = Normalize(axisEvent.value);
                     }
@@ -69,7 +69,7 @@ namespace Veldrid.NeoDemo
                 case SDL_EventType.GamepadButtonDown:
                 case SDL_EventType.GamepadButtonUp:
                     SDL_GamepadButtonEvent buttonEvent = Unsafe.As<SDL_Event, SDL_GamepadButtonEvent>(ref ev);
-                    if (buttonEvent.which == _controllerId)
+                    if (buttonEvent.which == _controllerID)
                     {
                         _buttons[buttonEvent.button] = buttonEvent.state == 1;
                     }
