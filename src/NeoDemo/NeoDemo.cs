@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
+using SixLabors.ImageSharp;
 using Veldrid.ImageSharp;
 using Veldrid.NeoDemo.Objects;
 using Veldrid.StartupUtilities;
 using Veldrid.Utilities;
 using Veldrid.Sdl2;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Veldrid.NeoDemo
 {
@@ -40,7 +42,7 @@ namespace Veldrid.NeoDemo
         private ColorWriteMask? _newMask;
 
         private readonly Dictionary<string, ImageSharpTexture> _textures = new Dictionary<string, ImageSharpTexture>();
-        private Sdl2ControllerTracker _controllerTracker;
+        private Sdl2GamepadTracker _gamepadTracker;
         private bool _colorSrgb = true;
         private FullScreenQuad _fsq;
         public static RenderDoc _renderDoc;
@@ -74,10 +76,10 @@ namespace Veldrid.NeoDemo
                 out _gd);
             _window.Resized += () => _windowResized = true;
 
-            Sdl2Native.SDL_Init(SDLInitFlags.GameController);
-            Sdl2ControllerTracker.CreateDefault(out _controllerTracker);
+            Sdl2Native.SDL_Init(SDLInitFlags.Gamepad);
+            Sdl2GamepadTracker.CreateDefault(out _gamepadTracker);
 
-            _scene = new Scene(_gd, _window, _controllerTracker);
+            _scene = new Scene(_gd, _window, _gamepadTracker);
 
             _sc.SetCurrentScene(_scene);
 
@@ -381,7 +383,7 @@ namespace Veldrid.NeoDemo
                     {
                         RefreshDeviceObjects(100);
                     }
-                    if (_controllerTracker != null)
+                    if (_gamepadTracker != null)
                     {
                         if (ImGui.MenuItem("Controller State"))
                         {
@@ -392,8 +394,8 @@ namespace Veldrid.NeoDemo
                     {
                         if (ImGui.MenuItem("Connect to Controller"))
                         {
-                            Sdl2ControllerTracker.CreateDefault(out _controllerTracker);
-                            _scene.Camera.Controller = _controllerTracker;
+                            Sdl2GamepadTracker.CreateDefault(out _gamepadTracker);
+                            _scene.Camera.Gamepad = _gamepadTracker;
                         }
                     }
                     if (ImGui.MenuItem("Show ImGui Demo", string.Empty, _showImguiDemo, true))
@@ -480,18 +482,18 @@ namespace Veldrid.NeoDemo
                     if (ImGui.Begin("Controller State", ref _controllerDebugMenu, ImGuiWindowFlags.NoCollapse))
                     {
 
-                        if (_controllerTracker != null)
+                        if (_gamepadTracker != null)
                         {
                             ImGui.Columns(2);
-                            ImGui.Text($"Name: {_controllerTracker.ControllerName}");
-                            foreach (SDL_GameControllerAxis axis in (SDL_GameControllerAxis[])Enum.GetValues(typeof(SDL_GameControllerAxis)))
+                            ImGui.Text($"Name: {_gamepadTracker.ControllerName}");
+                            foreach (SDL_GamepadAxis axis in (SDL_GamepadAxis[])Enum.GetValues(typeof(SDL_GamepadAxis)))
                             {
-                                ImGui.Text($"{axis}: {_controllerTracker.GetAxis(axis)}");
+                                ImGui.Text($"{axis}: {_gamepadTracker.GetAxis(axis)}");
                             }
                             ImGui.NextColumn();
-                            foreach (SDL_GameControllerButton button in (SDL_GameControllerButton[])Enum.GetValues(typeof(SDL_GameControllerButton)))
+                            foreach (SDL_GamepadButton button in (SDL_GamepadButton[])Enum.GetValues(typeof(SDL_GamepadButton)))
                             {
-                                ImGui.Text($"{button}: {_controllerTracker.IsPressed(button)}");
+                                ImGui.Text($"{button}: {_gamepadTracker.IsPressed(button)}");
                             }
                         }
                         else

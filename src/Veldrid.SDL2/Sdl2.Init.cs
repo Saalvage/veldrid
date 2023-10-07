@@ -19,6 +19,6 @@ namespace Veldrid.Sdl2
         Video = 0x00000020u,
         Joystick = 0x00000200u,
         Haptic = 0x00001000u,
-        GameController = 0x00002000u,
+        Gamepad = 0x00002000u,
     }
 }

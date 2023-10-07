@@ -70,7 +70,7 @@ namespace Veldrid.Sdl2
             }
             else
             {
-                _window = SDL_CreateWindow(title, x, y, width, height, flags);
+                _window = SDL_CreateWindow(title, width, height, flags);
                 WindowID = SDL_GetWindowID(_window);
                 Sdl2WindowRegistry.RegisterWindow(this);
                 PostWindowCreated(flags);
@@ -125,8 +125,7 @@ namespace Veldrid.Sdl2
             get
             {
                 SDL_WindowFlags flags = SDL_GetWindowFlags(_window);
-                if (((flags & SDL_WindowFlags.FullScreenDesktop) == SDL_WindowFlags.FullScreenDesktop)
-                    || ((flags & (SDL_WindowFlags.Borderless | SDL_WindowFlags.Fullscreen)) == (SDL_WindowFlags.Borderless | SDL_WindowFlags.Fullscreen)))
+                if ((flags & (SDL_WindowFlags.Borderless | SDL_WindowFlags.Fullscreen)) == (SDL_WindowFlags.Borderless | SDL_WindowFlags.Fullscreen))
                 {
                     return WindowState.BorderlessFullScreen;
                 }
@@ -153,11 +152,12 @@ namespace Veldrid.Sdl2
             {
                 switch (value)
                 {
+                    // TODO: New fullscreen shit
                     case WindowState.Normal:
-                        SDL_SetWindowFullscreen(_window, SDL_FullscreenMode.Windowed);
+                        SDL_SetWindowFullscreen(_window, false);
                         break;
                     case WindowState.FullScreen:
-                        SDL_SetWindowFullscreen(_window, SDL_FullscreenMode.Fullscreen);
+                        SDL_SetWindowFullscreen(_window, true);
                         break;
                     case WindowState.Maximized:
                         SDL_MaximizeWindow(_window);
@@ -166,7 +166,7 @@ namespace Veldrid.Sdl2
                         SDL_MinimizeWindow(_window);
                         break;
                     case WindowState.BorderlessFullScreen:
-                        SDL_SetWindowFullscreen(_window, SDL_FullscreenMode.FullScreenDesktop);
+                        SDL_SetWindowFullscreen(_window, true);
                         break;
                     case WindowState.Hidden:
                         SDL_HideWindow(_window);
@@ -181,7 +181,7 @@ namespace Veldrid.Sdl2
 
         public bool Visible
         {
-            get => (SDL_GetWindowFlags(_window) & SDL_WindowFlags.Shown) != 0;
+            get => (SDL_GetWindowFlags(_window) & SDL_WindowFlags.Hidden) == 0;
             set
             {
                 if (value)
@@ -201,14 +201,17 @@ namespace Veldrid.Sdl2
 
         public bool CursorVisible
         {
-            get
-            {
-                return SDL_ShowCursor(SDL_QUERY) == 1;
-            }
+            get => SDL_CursorVisible();
             set
             {
-                int toggle = value ? SDL_ENABLE : SDL_DISABLE;
-                SDL_ShowCursor(toggle);
+                if (value)
+                {
+                    SDL_ShowCursor();
+                }
+                else
+                {
+                    SDL_HideCursor();
+                }
             }
         }
 
@@ -355,7 +358,7 @@ namespace Veldrid.Sdl2
         {
             RefreshCachedPosition();
             RefreshCachedSize();
-            if ((flags & SDL_WindowFlags.Shown) == SDL_WindowFlags.Shown)
+            if ((flags & SDL_WindowFlags.Hidden) == SDL_WindowFlags.Hidden)
             {
                 SDL_ShowWindow(_window);
             }
@@ -423,10 +426,6 @@ namespace Veldrid.Sdl2
                 case SDL_EventType.Terminating:
                     Close();
                     break;
-                case SDL_EventType.WindowEvent:
-                    SDL_WindowEvent windowEvent = Unsafe.Read<SDL_WindowEvent>(ev);
-                    HandleWindowEvent(windowEvent);
-                    break;
                 case SDL_EventType.KeyDown:
                 case SDL_EventType.KeyUp:
                     SDL_KeyboardEvent keyboardEvent = Unsafe.Read<SDL_KeyboardEvent>(ev);
@@ -455,9 +454,45 @@ namespace Veldrid.Sdl2
                     break;
                 case SDL_EventType.DropFile:
                 case SDL_EventType.DropBegin:
-                case SDL_EventType.DropTest:
+                case SDL_EventType.DropText:
                     SDL_DropEvent dropEvent = Unsafe.Read<SDL_DropEvent>(ev);
                     HandleDropEvent(dropEvent);
+                    break;
+                case SDL_EventType.WindowResized:
+                case SDL_EventType.WindowPixelSizeChanged:
+                case SDL_EventType.WindowMinimized:
+                case SDL_EventType.WindowMaximized:
+                case SDL_EventType.WindowRestored:
+                    HandleResizedMessage();
+                    break;
+                case SDL_EventType.WindowFocusGained:
+                    FocusGained?.Invoke();
+                    break;
+                case SDL_EventType.WindowFocusLost:
+                    FocusLost?.Invoke();
+                    break;
+                case SDL_EventType.WindowCloseRequested:
+                    Close();
+                    break;
+                case SDL_EventType.WindowShown:
+                    Shown?.Invoke();
+                    break;
+                case SDL_EventType.WindowHidden:
+                    Hidden?.Invoke();
+                    break;
+                case SDL_EventType.WindowMouseEnter:
+                    MouseEntered?.Invoke();
+                    break;
+                case SDL_EventType.WindowMouseLeave:
+                    MouseLeft?.Invoke();
+                    break;
+                case SDL_EventType.WindowExposed:
+                    Exposed?.Invoke();
+                    break;
+                case SDL_EventType.WindowMoved:
+                    SDL_WindowEvent windowEvent = Unsafe.Read<SDL_WindowEvent>(ev);
+                    _cachedPosition.Value = new Point(windowEvent.data1, windowEvent.data2);
+                    Moved?.Invoke(new Point(windowEvent.data1, windowEvent.data2));
                     break;
                 default:
                     // Ignore
@@ -849,51 +884,6 @@ namespace Veldrid.Sdl2
             return mods;
         }
 
-        private void HandleWindowEvent(SDL_WindowEvent windowEvent)
-        {
-            switch (windowEvent.@event)
-            {
-                case SDL_WindowEventID.Resized:
-                case SDL_WindowEventID.SizeChanged:
-                case SDL_WindowEventID.Minimized:
-                case SDL_WindowEventID.Maximized:
-                case SDL_WindowEventID.Restored:
-                    HandleResizedMessage();
-                    break;
-                case SDL_WindowEventID.FocusGained:
-                    FocusGained?.Invoke();
-                    break;
-                case SDL_WindowEventID.FocusLost:
-                    FocusLost?.Invoke();
-                    break;
-                case SDL_WindowEventID.Close:
-                    Close();
-                    break;
-                case SDL_WindowEventID.Shown:
-                    Shown?.Invoke();
-                    break;
-                case SDL_WindowEventID.Hidden:
-                    Hidden?.Invoke();
-                    break;
-                case SDL_WindowEventID.Enter:
-                    MouseEntered?.Invoke();
-                    break;
-                case SDL_WindowEventID.Leave:
-                    MouseLeft?.Invoke();
-                    break;
-                case SDL_WindowEventID.Exposed:
-                    Exposed?.Invoke();
-                    break;
-                case SDL_WindowEventID.Moved:
-                    _cachedPosition.Value = new Point(windowEvent.data1, windowEvent.data2);
-                    Moved?.Invoke(new Point(windowEvent.data1, windowEvent.data2));
-                    break;
-                default:
-                    Debug.WriteLine("Unhandled SDL WindowEvent: " + windowEvent.@event);
-                    break;
-            }
-        }
-
         private void HandleResizedMessage()
         {
             RefreshCachedSize();
@@ -1048,7 +1038,7 @@ namespace Veldrid.Sdl2
                 }
                 else
                 {
-                    return SDL_CreateWindow(Title, X, Y, Width, Height, WindowFlags);
+                    return SDL_CreateWindow(Title, Width, Height, WindowFlags);
                 }
             }
         }

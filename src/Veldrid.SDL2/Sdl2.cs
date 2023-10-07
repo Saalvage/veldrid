@@ -13,28 +13,20 @@ namespace Veldrid.Sdl2
             string[] names;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                names = new[] { "SDL2.dll" };
+                names = new[] { "SDL3.dll" };
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                names = new[]
-                {
-                    "libSDL2-2.0.so",
-                    "libSDL2-2.0.so.0",
-                    "libSDL2-2.0.so.1",
-                };
+                names = new[] { "libSDL3.so" };
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                names = new[]
-                {
-                    "libsdl2.dylib"
-                };
+                names = new[] { "libSDL3.dylib" };
             }
             else
             {
-                Debug.WriteLine("Unknown SDL platform. Attempting to load \"SDL2\"");
-                names = new[] { "SDL2.dll" };
+                Debug.WriteLine("Unknown SDL platform. Attempting to load \"SDL3\"");
+                names = new[] { "SDL3.dll" };
             }
 
             NativeLibrary lib = new NativeLibrary(names);
@@ -72,11 +64,11 @@ namespace Veldrid.Sdl2
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void SDL_ClearError_t();
         private static SDL_ClearError_t s_sdl_clearError = LoadFunction<SDL_ClearError_t>("SDL_ClearError");
-        public static byte* SDL_ClearError() { s_sdl_clearError(); return null; }
+        public static void SDL_ClearError() => s_sdl_clearError();
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void SDL_free_t(void* ptr);
         private static SDL_free_t s_sdl_free = LoadFunction<SDL_free_t>("SDL_free");
-        public static void SDL_free(void* ptr) { s_sdl_free(ptr); }
+        public static void SDL_free(void* ptr) => s_sdl_free(ptr);
     }
 }

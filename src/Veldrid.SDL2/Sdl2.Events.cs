@@ -37,17 +37,16 @@ namespace Veldrid.Sdl2
     public unsafe delegate int SDL_EventFilter(void* userdata, SDL_Event* @event);
 
     [StructLayout(LayoutKind.Explicit)]
-    public struct SDL_Event
+    public unsafe struct SDL_Event
     {
         [FieldOffset(0)]
         public SDL_EventType type;
         [FieldOffset(4)]
-        public uint timestamp;
-        [FieldOffset(8)]
+        public ulong timestamp;
+        [FieldOffset(16)]
         public uint windowID;
         [FieldOffset(0)]
-        private Bytex56 __padding;
-        private unsafe struct Bytex56 { private fixed byte bytes[56]; }
+        private fixed byte padding[128];
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -57,18 +56,11 @@ namespace Veldrid.Sdl2
         /// SDL_WINDOWEVENT
         /// </summary>
         public SDL_EventType type;
-        public uint timestamp;
+        public ulong timestamp;
         /// <summary>
         /// The associated Sdl2Window
         /// </summary>
         public uint windowID;
-        /// <summary>
-        /// SDL_WindowEventID
-        /// </summary>
-        public SDL_WindowEventID @event;
-        private byte padding1;
-        private byte padding2;
-        private byte padding3;
         /// <summary>
         /// event dependent data
         /// </summary>
@@ -77,78 +69,6 @@ namespace Veldrid.Sdl2
         /// event dependent data
         /// </summary>
         public int data2;
-    }
-
-    public enum SDL_WindowEventID : byte
-    {
-        /// <summary>
-        /// Never used.
-        /// </summary>
-        None,
-        /// <summary>
-        /// Sdl2Window has been shown.
-        /// </summary>
-        Shown,
-        /// <summary>
-        /// Sdl2Window has been hidden.
-        /// </summary>
-        Hidden,
-        /// <summary>
-        /// Sdl2Window has been exposed and should be redrawn.
-        /// </summary>
-        Exposed,
-        /// <summary>
-        /// Sdl2Window has been moved to data1, data2.
-        /// </summary>
-        Moved,
-        /// <summary>
-        /// Sdl2Window has been resized to data1xdata2.
-        /// </summary>
-        Resized,
-        /// <summary>
-        /// The Sdl2Window size has changed, either as a result of an API call or through the system or user changing the Sdl2Window size.
-        /// </summary>
-        SizeChanged,
-        /// <summary>
-        /// Sdl2Window has been minimized.
-        /// </summary>
-        Minimized,
-        /// <summary>
-        /// Sdl2Window has been maximized.
-        /// </summary>
-        Maximized,
-        /// <summary>
-        /// Sdl2Window has been restored to normal size and position.
-        /// </summary>
-        Restored,
-        /// <summary>
-        /// Sdl2Window has gained mouse focus.
-        /// </summary>
-        Enter,
-        /// <summary>
-        /// Sdl2Window has lost mouse focus.
-        /// </summary>
-        Leave,
-        /// <summary>
-        /// Sdl2Window has gained keyboard focus.
-        /// </summary>
-        FocusGained,
-        /// <summary>
-        /// Sdl2Window has lost keyboard focus
-        /// </summary>
-        FocusLost,
-        /// <summary>
-        /// The Sdl2Window manager requests that the Sdl2Window be closed.
-        /// </summary>
-        Close,
-        /// <summary>
-        /// Sdl2Window is being offered a focus (should SetWindowInputFocus() on itself or a subwindow, or ignore).
-        /// </summary>
-        TakeFocus,
-        /// <summary>
-        /// Sdl2Window had a hit test that wasn't SDL_HITTEST_NORMAL.
-        /// </summary>
-        HitTest
     }
 
     /// <summary>
@@ -204,15 +124,47 @@ namespace Veldrid.Sdl2
         /// </summary>
         DidEnterForeground,
 
-        /* Sdl2Window events */
-        /// <summary>
-        /// Sdl2Window state change
-        /// </summary>
-        WindowEvent = 0x200,
+        LocaleChanged,
+
+        SystemThemeChanged,
+
+
+        DisplayOrientation = 0x151,
+        DisplayConnected,
+        DisplayDisconnected,
+        DisplayMoved,
+        DisplayContentScaleChanged,
+
+
         /// <summary>
         /// System specific event
         /// </summary>
-        SysWMEvent,
+        SysWMEvent = 0x201,
+
+        WindowShown,
+        WindowHidden,
+        WindowExposed,
+        WindowMoved,
+        WindowResized,
+        WindowPixelSizeChanged,
+        WindowMinimized,
+        WindowMaximized,
+        WindowRestored,
+        WindowMouseEnter,
+        WindowMouseLeave,
+        WindowFocusGained,
+        WindowFocusLost,
+        WindowCloseRequested,
+        WindowTakeFocus,
+        WindowHitTest,
+        WindowIccProfChanged,
+        WindowDisplayChanged,
+        WindowDisplayScaleChanged,
+        WindowOccluded,
+        WindowDestroyed,
+
+        WindowFirst = WindowShown,
+        WindowLast = WindowDestroyed,
 
         /* Keyboard events */
         /// <summary>
@@ -257,13 +209,9 @@ namespace Veldrid.Sdl2
         /// </summary>
         JoyAxisMotion = 0x600,
         /// <summary>
-        /// Joystick trackball motion
-        /// </summary>
-        JoyBallMotion,
-        /// <summary>
         /// Joystick hat position change
         /// </summary>
-        JoyHatMotion,
+        JoyHatMotion = 0x602,
         /// <summary>
         /// Joystick button pressed
         /// </summary>
@@ -280,42 +228,44 @@ namespace Veldrid.Sdl2
         /// An opened joystick has been removed
         /// </summary>
         JoyDeviceRemoved,
+        JoyBatteryUpdated,
+        JoyUpdateComplete,
 
-        /* Game controller events */
+        /* Game Gamepad events */
         /// <summary>
-        /// Game controller axis motion
+        /// Game Gamepad axis motion
         /// </summary>
-        ControllerAxisMotion = 0x650,
+        GamepadAxisMotion = 0x650,
         /// <summary>
-        /// Game controller button pressed
+        /// Game Gamepad button pressed
         /// </summary>
-        ControllerButtonDown,
+        GamepadButtonDown,
         /// <summary>
-        /// Game controller button released
+        /// Game Gamepad button released
         /// </summary>
-        ControllerButtonUp,
+        GamepadButtonUp,
         /// <summary>
-        /// A new Game controller has been inserted into the system
+        /// A new Game Gamepad has been inserted into the system
         /// </summary>
-        ControllerDeviceAdded,
+        GamepadAdded,
         /// <summary>
-        /// An opened Game controller has been removed
+        /// An opened Game Gamepad has been removed
         /// </summary>
-        ControllerDeviceRemoved,
+        GamepadRemoved,
         /// <summary>
-        /// The controller mapping was updated
+        /// The Gamepad mapping was updated
         /// </summary>
-        ControllerDeviceRemapped,
+        GamepadRemapped,
+        GamepadTouchpadDown,
+        GamepadTouchpadMotion,
+        GamepadTouchpadUp,
+        GamepadSensorUpdate,
+        GamepadUpdateComplete,
 
         /* Touch events */
         FingerDown = 0x700,
         FingerUp,
         FingerMotion,
-
-        /* Gesture events */
-        DollarGesture = 0x800,
-        DollarRecord,
-        MultiGesture,
 
         /* Clipboard events */
         /// <summary>
@@ -331,12 +281,7 @@ namespace Veldrid.Sdl2
         /// <summary>
         /// text/plain drag-and-drop event
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        DropTest,
-        /// <summary>
-        /// text/plain drag-and-drop event
-        /// </summary>
-        DropText = DropTest,
+        DropText,
         /// <summary>
         /// A new set of drops is beginning (NULL filename) 
         /// </summary>
@@ -345,6 +290,7 @@ namespace Veldrid.Sdl2
         /// Current set of drops is now complete (NULL filename)
         /// </summary>
         DropComplete,
+        DropPosition,
 
         /* Audio hotplug events */
         /// <summary>
@@ -355,6 +301,9 @@ namespace Veldrid.Sdl2
         /// An audio device has been removed.
         /// </summary>
         AudioDeviceRemoved,
+        AudioDeviceFormatChanged,
+
+        SensorUpdate = 0x1200,
 
         /* Render events */
         /// <summary>
@@ -381,7 +330,7 @@ namespace Veldrid.Sdl2
     public struct SDL_MouseMotionEvent
     {
         public SDL_EventType type;
-        public uint timestamp;
+        public ulong timestamp;
         /// <summary>
         /// The Sdl2Window with mouse focus, if any.
         /// </summary>
@@ -397,19 +346,19 @@ namespace Veldrid.Sdl2
         /// <summary>
         /// X coordinate, relative to Sdl2Window.
         /// </summary>
-        public int x;
+        public float x;
         /// <summary>
         /// Y coordinate, relative to Sdl2Window.
         /// </summary>
-        public int y;
+        public float y;
         /// <summary>
         /// The relative motion in the X direction.
         /// </summary>
-        public int xrel;
+        public float xrel;
         /// <summary>
         /// The relative motion in the Y direction.
         /// </summary>
-        public int yrel;
+        public float yrel;
     }
 
     /// <summary>
@@ -421,7 +370,7 @@ namespace Veldrid.Sdl2
         /// SDL_MOUSEBUTTONDOWN or ::SDL_MOUSEBUTTONUP.
         /// </summary>
         public SDL_EventType type;
-        public uint timestamp;
+        public ulong timestamp;
         /// <summary>
         /// The Sdl2Window with mouse focus, if any.
         /// </summary>
@@ -462,7 +411,7 @@ namespace Veldrid.Sdl2
         /// SDL_MOUSEWHEEL.
         /// </summary>
         public SDL_EventType type;
-        public uint timestamp;
+        public ulong timestamp;
         /// <summary>
         /// The Sdl2Window with mouse focus, if any.
         /// </summary>
@@ -505,7 +454,7 @@ namespace Veldrid.Sdl2
         /// SDL_KEYDOWN or SDL_KEYUP
         /// </summary>
         public SDL_EventType type;
-        public uint timestamp;
+        public ulong timestamp;
         /// <summary>
         /// The Sdl2Window with keyboard focus, if any
         /// </summary>
@@ -564,7 +513,7 @@ namespace Veldrid.Sdl2
         /// SDL_TEXTINPUT.
         /// </summary>
         public SDL_EventType type;
-        public uint timestamp;
+        public ulong timestamp;
         /// <summary>
         /// The Sdl2Window with keyboard focus, if any.
         /// </summary>
@@ -582,7 +531,7 @@ namespace Veldrid.Sdl2
         /// </summary>
         public SDL_EventType type;
         /// <summary>timestamp of the event.</summary>
-        public uint timestamp;
+        public ulong timestamp;
         /// <summary>the file name, which should be freed with SDL_free(), is NULL on BEGIN/COMPLETE</summary>
         public byte* file;
         /// <summary>the window that was dropped on, if any</summary>

@@ -42,9 +42,9 @@ namespace Veldrid.NeoDemo
         float _midCascadeLimit = 300;
         float _farCascadeLimit;
 
-        public Scene(GraphicsDevice gd, Sdl2Window window, Sdl2ControllerTracker controller)
+        public Scene(GraphicsDevice gd, Sdl2Window window, Sdl2GamepadTracker gamepad)
         {
-            _camera = new Camera(gd, window, controller);
+            _camera = new Camera(gd, window, gamepad);
             _farCascadeLimit = _camera.FarDistance;
             _updateables.Add(_camera);
         }

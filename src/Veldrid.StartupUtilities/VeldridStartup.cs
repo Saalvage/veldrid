@@ -51,9 +51,9 @@ namespace Veldrid.StartupUtilities
         {
             SDL_WindowFlags flags = SDL_WindowFlags.OpenGL | SDL_WindowFlags.Resizable
                     | GetWindowFlags(windowCI.WindowInitialState);
-            if (windowCI.WindowInitialState != WindowState.Hidden)
+            if (windowCI.WindowInitialState == WindowState.Hidden)
             {
-                flags |= SDL_WindowFlags.Shown;
+                flags |= SDL_WindowFlags.Hidden;
             }
             Sdl2Window window = new Sdl2Window(
                 windowCI.WindowTitle,
@@ -80,7 +80,7 @@ namespace Veldrid.StartupUtilities
                 case WindowState.Minimized:
                     return SDL_WindowFlags.Minimized;
                 case WindowState.BorderlessFullScreen:
-                    return SDL_WindowFlags.FullScreenDesktop;
+                    return SDL_WindowFlags.Fullscreen; // TODO: ???
                 case WindowState.Hidden:
                     return SDL_WindowFlags.Hidden;
                 default:
@@ -141,7 +141,7 @@ namespace Veldrid.StartupUtilities
             IntPtr sdlHandle = window.SdlWindowHandle;
             SDL_SysWMinfo sysWmInfo;
             Sdl2Native.SDL_GetVersion(&sysWmInfo.version);
-            Sdl2Native.SDL_GetWMWindowInfo(sdlHandle, &sysWmInfo);
+            var i = Sdl2Native.SDL_GetWMWindowInfo(sdlHandle, &sysWmInfo);
             switch (sysWmInfo.subsystem)
             {
                 case SysWMType.Windows:
@@ -249,6 +249,14 @@ namespace Veldrid.StartupUtilities
             GraphicsBackend backend)
         {
             Sdl2Native.SDL_ClearError();
+            // TODO: SDL_ClearError seems to be broken atm.
+            byte* errorReset = Sdl2Native.SDL_GetError();
+            if (errorReset != null)
+            {
+                string errorString = GetString(errorReset);
+                Console.WriteLine("ERROR: " + errorString);
+            }
+
             IntPtr sdlHandle = window.SdlWindowHandle;
 
             SDL_SysWMinfo sysWmInfo;
@@ -262,10 +270,11 @@ namespace Veldrid.StartupUtilities
             if (error != null)
             {
                 string errorString = GetString(error);
+                Console.WriteLine("ERROR: " + errorString);
                 if (!string.IsNullOrEmpty(errorString))
                 {
-                    throw new VeldridException(
-                        $"Unable to create OpenGL Context: \"{errorString}\". This may indicate that the system does not support the requested OpenGL profile, version, or Swapchain format.");
+                    //throw new VeldridException(
+                    //    $"Unable to create OpenGL Context: \"{errorString}\". This may indicate that the system does not support the requested OpenGL profile, version, or Swapchain format.");
                 }
             }
 
@@ -434,7 +443,6 @@ namespace Veldrid.StartupUtilities
 
             SDL_Window window = Sdl2Native.SDL_CreateWindow(
                 string.Empty,
-                0, 0,
                 1, 1,
                 SDL_WindowFlags.Hidden | SDL_WindowFlags.OpenGL);
             byte* error = Sdl2Native.SDL_GetError();

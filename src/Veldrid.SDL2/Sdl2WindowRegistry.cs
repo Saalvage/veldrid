@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using static Veldrid.Sdl2.Sdl2Native;
@@ -44,7 +45,6 @@ namespace Veldrid.Sdl2
             {
                 case SDL_EventType.Quit:
                 case SDL_EventType.Terminating:
-                case SDL_EventType.WindowEvent:
                 case SDL_EventType.KeyDown:
                 case SDL_EventType.KeyUp:
                 case SDL_EventType.TextEditing:
@@ -66,7 +66,15 @@ namespace Veldrid.Sdl2
                     handled = true;
                     break;
                 default:
-                    handled = false;
+                    if (ev.type >= SDL_EventType.WindowFirst && ev.type <= SDL_EventType.WindowLast)
+                    {
+                        windowID = ev.windowID;
+                        handled = true;
+                    }
+                    else
+                    {
+                        handled = false;
+                    }
                     break;
             }
 

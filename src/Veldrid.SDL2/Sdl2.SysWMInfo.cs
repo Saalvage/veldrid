@@ -6,16 +6,26 @@ namespace Veldrid.Sdl2
     public static unsafe partial class Sdl2Native
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_GetWindowWMInfo_t(SDL_Window Sdl2Window, SDL_SysWMinfo* info);
+        private delegate int SDL_GetWindowWMInfo_t(SDL_Window Sdl2Window, SDL_SysWMinfo* info, uint version);
         private static readonly SDL_GetWindowWMInfo_t s_getWindowWMInfo = LoadFunction<SDL_GetWindowWMInfo_t>("SDL_GetWindowWMInfo");
-        public static int SDL_GetWMWindowInfo(SDL_Window Sdl2Window, SDL_SysWMinfo* info) => s_getWindowWMInfo(Sdl2Window, info);
+        public static int SDL_GetWMWindowInfo(SDL_Window Sdl2Window, SDL_SysWMinfo* info) => s_getWindowWMInfo(Sdl2Window, info, 1);
     }
 
-    public struct SDL_SysWMinfo
+    [StructLayout(LayoutKind.Explicit)]
+    public unsafe struct SDL_SysWMinfo
     {
+        [FieldOffset(0)]
         public SDL_version version;
+        [FieldOffset(4)]
         public SysWMType subsystem;
+
+        private const int UnionOffset = 8 + 2 * 4;
+
+        [FieldOffset(UnionOffset)]
         public WindowInfo info;
+
+        [FieldOffset(UnionOffset)]
+        private fixed byte padding[14 * 8];
     }
 
     public unsafe struct WindowInfo
@@ -70,15 +80,16 @@ namespace Veldrid.Sdl2
     public enum SysWMType
     {
         Unknown,
-        Windows,
-        X11,
-        DirectFB,
-        Cocoa,
-        UIKit,
-        Wayland,
-        Mir,
-        WinRT,
         Android,
-        Vivante
+        Cocoa,
+        Haiku,
+        KMSDRM,
+        RISCOS,
+        UIKIT,
+        VIVANTE,
+        Wayland,
+        Windows,
+        WinRT,
+        X11,
     }
 }

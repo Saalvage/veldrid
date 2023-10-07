@@ -12,9 +12,9 @@ namespace Veldrid.Sdl2
         public const int SDL_WINDOWPOS_CENTERED = 0x2FFF0000;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate SDL_Window SDL_CreateWindow_t(byte* title, int x, int y, int w, int h, SDL_WindowFlags flags);
+        private delegate SDL_Window SDL_CreateWindow_t(byte* title, int w, int h, SDL_WindowFlags flags);
         private static SDL_CreateWindow_t s_sdl_createWindow = LoadFunction<SDL_CreateWindow_t>("SDL_CreateWindow");
-        public static SDL_Window SDL_CreateWindow(string title, int x, int y, int w, int h, SDL_WindowFlags flags)
+        public static SDL_Window SDL_CreateWindow(string title, int w, int h, SDL_WindowFlags flags)
         {
             byte* utf8Bytes;
             if (title != null)
@@ -41,7 +41,41 @@ namespace Veldrid.Sdl2
                 utf8Bytes = null;
             }
 
-            return s_sdl_createWindow(utf8Bytes, x, y, w, h, flags);
+            return s_sdl_createWindow(utf8Bytes, w, h, flags);
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate SDL_Window SDL_CreateWindowWithPosition_t(byte* title, int x, int y, int w, int h, SDL_WindowFlags flags);
+        private static SDL_CreateWindowWithPosition_t s_sdl_createWindowWithPosition = LoadFunction<SDL_CreateWindowWithPosition_t>("SDL_CreateWindowWithPosition");
+        public static SDL_Window SDL_CreateWindowWithPosition(string title, int x, int y, int w, int h, SDL_WindowFlags flags)
+        {
+            // TODO: Code duplication bad!
+            byte* utf8Bytes;
+            if (title != null)
+            {
+                int byteCount = Encoding.UTF8.GetByteCount(title);
+                if (byteCount == 0)
+                {
+                    byte zeroByte = 0;
+                    utf8Bytes = &zeroByte;
+                }
+                else
+                {
+                    byte* utf8BytesAlloc = stackalloc byte[byteCount + 1];
+                    utf8Bytes = utf8BytesAlloc;
+                    fixed (char* titlePtr = title)
+                    {
+                        int actualBytes = Encoding.UTF8.GetBytes(titlePtr, title.Length, utf8Bytes, byteCount);
+                        utf8Bytes[actualBytes] = 0;
+                    }
+                }
+            }
+            else
+            {
+                utf8Bytes = null;
+            }
+
+            return s_sdl_createWindowWithPosition(utf8Bytes, x, y, w, h, flags);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -70,9 +104,9 @@ namespace Veldrid.Sdl2
         public static void SDL_SetWindowPosition(SDL_Window Sdl2Window, int x, int y) => s_setWindowPosition(Sdl2Window, x, y);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void SDL_SetWindowSize_t(SDL_Window SDL2Window, int w, int h);
+        private delegate int SDL_SetWindowSize_t(SDL_Window SDL2Window, int w, int h);
         private static SDL_SetWindowSize_t s_setWindowSize = LoadFunction<SDL_SetWindowSize_t>("SDL_SetWindowSize");
-        public static void SDL_SetWindowSize(SDL_Window Sdl2Window, int w, int h) => s_setWindowSize(Sdl2Window, w, h);
+        public static int SDL_SetWindowSize(SDL_Window Sdl2Window, int w, int h) => s_setWindowSize(Sdl2Window, w, h);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate string SDL_GetWindowTitle_t(SDL_Window SDL2Window);
@@ -138,9 +172,19 @@ namespace Veldrid.Sdl2
         public static void SDL_RaiseWindow(SDL_Window Sdl2Window) => s_raiseWindow(Sdl2Window);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_SetWindowFullscreen_t(SDL_Window Sdl2Window, SDL_FullscreenMode mode);
+        private delegate int SDL_SetWindowFullscreen_t(SDL_Window Sdl2Window, bool fullscreen);
         private static SDL_SetWindowFullscreen_t s_setWindowFullscreen = LoadFunction<SDL_SetWindowFullscreen_t>("SDL_SetWindowFullscreen");
-        public static int SDL_SetWindowFullscreen(SDL_Window Sdl2Window, SDL_FullscreenMode mode) => s_setWindowFullscreen(Sdl2Window, mode);
+        public static int SDL_SetWindowFullscreen(SDL_Window Sdl2Window, bool fullscreen) => s_setWindowFullscreen(Sdl2Window, fullscreen);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate int SDL_SetWindowFullscreenMode_t(SDL_Window Sdl2Window, SDL_DisplayMode mode);
+        private static SDL_SetWindowFullscreenMode_t s_setWindowFullscreenMode = LoadFunction<SDL_SetWindowFullscreenMode_t>("SDL_SetWindowFullscreenMode");
+        public static int SDL_SetWindowFullscreenMode(SDL_Window Sdl2Window, SDL_DisplayMode mode) => s_setWindowFullscreenMode(Sdl2Window, mode);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate SDL_DisplayMode SDL_GetWindowFullscreenMode_t(SDL_Window Sdl2Window);
+        private static SDL_GetWindowFullscreenMode_t s_GetWindowFullscreenMode = LoadFunction<SDL_GetWindowFullscreenMode_t>("SDL_GetWindowFullscreenMode");
+        public static SDL_DisplayMode SDL_GetWindowFullscreenMode(SDL_Window Sdl2Window) => s_GetWindowFullscreenMode(Sdl2Window);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void SDL_ShowWindow_t(SDL_Window SDL2Window);
@@ -173,29 +217,34 @@ namespace Veldrid.Sdl2
         public static void SDL_SetWindowResizable(SDL_Window window, uint resizable) => s_setWindowResizable(window, resizable);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_GetDisplayBounds_t(int displayIndex, Rectangle* rect);
+        private delegate int SDL_GetDisplayBounds_t(uint displayID, Rectangle* rect);
         private static SDL_GetDisplayBounds_t s_sdl_getDisplayBounds = LoadFunction<SDL_GetDisplayBounds_t>("SDL_GetDisplayBounds");
-        public static int SDL_GetDisplayBounds(int displayIndex, Rectangle* rect) => s_sdl_getDisplayBounds(displayIndex, rect);
+        public static int SDL_GetDisplayBounds(uint displayID, Rectangle* rect) => s_sdl_getDisplayBounds(displayID, rect);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_GetWindowDisplayIndex_t(SDL_Window window);
-        private static SDL_GetWindowDisplayIndex_t s_sdl_getWindowDisplayIndex = LoadFunction<SDL_GetWindowDisplayIndex_t>("SDL_GetWindowDisplayIndex");
-        public static int SDL_GetWindowDisplayIndex(SDL_Window window) => s_sdl_getWindowDisplayIndex(window);
+        private delegate uint SDL_GetDisplayForWindow_t(SDL_Window window);
+        private static SDL_GetDisplayForWindow_t s_sdl_getDisplayForWindow = LoadFunction<SDL_GetDisplayForWindow_t>("SDL_GetDisplayForWindow");
+        public static uint SDL_GetDisplayForWindow(SDL_Window window) => s_sdl_getDisplayForWindow(window);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_GetCurrentDisplayMode_t(int displayIndex, SDL_DisplayMode* mode);
+        private delegate SDL_DisplayMode* SDL_GetCurrentDisplayMode_t(uint displayID);
         private static SDL_GetCurrentDisplayMode_t s_sdl_getCurrentDisplayMode = LoadFunction<SDL_GetCurrentDisplayMode_t>("SDL_GetCurrentDisplayMode");
-        public static int SDL_GetCurrentDisplayMode(int displayIndex, SDL_DisplayMode* mode) => s_sdl_getCurrentDisplayMode(displayIndex, mode);
+        public static SDL_DisplayMode* SDL_GetCurrentDisplayMode(uint displayID) => s_sdl_getCurrentDisplayMode(displayID);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_GetDesktopDisplayMode_t(int displayIndex, SDL_DisplayMode* mode);
+        private delegate SDL_DisplayMode* SDL_GetDesktopDisplayMode_t(uint displayID);
         private static SDL_GetDesktopDisplayMode_t s_sdl_getDesktopDisplayMode = LoadFunction<SDL_GetDesktopDisplayMode_t>("SDL_GetDesktopDisplayMode");
-        public static int SDL_GetDesktopDisplayMode(int displayIndex, SDL_DisplayMode* mode) => s_sdl_getDesktopDisplayMode(displayIndex, mode);
+        public static SDL_DisplayMode* SDL_GetDesktopDisplayMode(uint displayID) => s_sdl_getDesktopDisplayMode(displayID);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int SDL_GetNumVideoDisplays_t();
-        private static SDL_GetNumVideoDisplays_t s_sdl_getNumVideoDisplays = LoadFunction<SDL_GetNumVideoDisplays_t>("SDL_GetNumVideoDisplays");
-        public static int SDL_GetNumVideoDisplays() => s_sdl_getNumVideoDisplays();
+        private delegate SDL_DisplayMode* SDL_GetFullscreenDisplayModes_t(uint displayID, int* count);
+        private static SDL_GetFullscreenDisplayModes_t s_sdl_getFullscreenDisplayModes = LoadFunction<SDL_GetFullscreenDisplayModes_t>("SDL_GetFullscreenDisplayModes");
+        public static SDL_DisplayMode* SDL_GetFullscreenDisplayModes(uint displayID, int* count) => s_sdl_getFullscreenDisplayModes(displayID, count);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate uint* SDL_GetDisplays_t(int* count);
+        private static SDL_GetDisplays_t s_sdl_getDisplays = LoadFunction<SDL_GetDisplays_t>("SDL_GetDisplays");
+        public static uint* SDL_GetDisplays(int* count) => s_sdl_getDisplays(count);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private delegate bool SDL_SetHint_t(string name, string value);
@@ -216,9 +265,9 @@ namespace Veldrid.Sdl2
         /// </summary>
         OpenGL = 0x00000002,
         /// <summary>
-        /// Sdl2Window is visible.
+        /// Sdl2Window is occluded.
         /// </summary>
-        Shown = 0x00000004,
+        Occluded = 0x00000004,
         /// <summary>
         /// Sdl2Window is not visible.
         /// </summary>
@@ -242,7 +291,7 @@ namespace Veldrid.Sdl2
         /// <summary>
         /// Sdl2Window has grabbed input focus.
         /// </summary>
-        InputGrabbed = 0x00000100,
+        MouseGrabbed = 0x00000100,
         /// <summary>
         /// Sdl2Window has input focus.
         /// </summary>
@@ -251,27 +300,22 @@ namespace Veldrid.Sdl2
         /// Sdl2Window has mouse focus.
         /// </summary>
         MouseFocus = 0x00000400,
-        FullScreenDesktop = (Fullscreen | 0x00001000),
         /// <summary>
         /// Sdl2Window not created by SDL.
         /// </summary>
         Foreign = 0x00000800,
         /// <summary>
-        /// Sdl2Window should be created in high-DPI mode if supported.
+        /// Sdl2Window uses high pixel density back buffer if possible.
         /// </summary>
-        AllowHighDpi = 0x00002000,
+        HighPixelDensity = 0x00002000,
         /// <summary>
-        /// Sdl2Window has mouse captured (unrelated to InputGrabbed).
+        /// Sdl2Window has mouse captured (unrelated to MouseGrabbed).
         /// </summary>
         MouseCapture = 0x00004000,
         /// <summary>
         /// Sdl2Window should always be above others.
         /// </summary>
         AlwaysOnTop = 0x00008000,
-        /// <summary>
-        /// Sdl2Window should not be added to the taskbar.
-        /// </summary>
-        SkipTaskbar = 0x00010000,
         /// <summary>
         /// Sdl2Window should be treated as a utility Sdl2Window.
         /// </summary>
@@ -283,22 +327,37 @@ namespace Veldrid.Sdl2
         /// <summary>
         /// Sdl2Window should be treated as a popup menu.
         /// </summary>
-        PopupMenu = 0x00080000
-    }
-
-    public enum SDL_FullscreenMode : uint
-    {
-        Windowed = 0,
-        Fullscreen = 0x00000001,
-        FullScreenDesktop = (Fullscreen | 0x00001000),
+        PopupMenu = 0x00080000,
+        /// <summary>
+        /// Sdl2Window has grabbed keyboard input.
+        /// </summary>
+        KeyboardGrabbed = 0x00100000,
+        /// <summary>
+        /// Sdl2Window usable for Vulkan surface.
+        /// </summary>
+        Vulkan = 0x10000000,
+        /// <summary>
+        /// Sdl2Window usable for Metal view.
+        /// </summary>
+        Metal = 0x20000000,
+        /// <summary>
+        /// Sdl2Window with transparent buffer.
+        /// </summary>
+        Transparent = 0x40000000,
+        /// <summary>
+        /// Sdl2Window should not be focusable.
+        /// </summary>
+        NotFocusable = 0x80000000,
     }
 
     public unsafe struct SDL_DisplayMode
     {
+        public uint displayID;
         public uint format;
         public int w;
         public int h;
-        public int refresh_rate;
+        public float pixel_density;
+        public float refresh_rate;
         public void* driverdata;
     }
 }
