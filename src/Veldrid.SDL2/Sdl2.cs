@@ -28,7 +28,7 @@ namespace Veldrid.Sdl2
             {
                 names = new[]
                 {
-                    "libsdl2.dylib"
+                    "libSDL3.dylib"
                 };
             }
             else

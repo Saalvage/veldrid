@@ -9,7 +9,7 @@
     <_Veldrid_SDL2_NativeRuntime Condition=" '$(_Veldrid_SDL2_NativeRuntime)' == '' And '$(_Veldrid_SDL2_IsWindows)' == 'true' And ('$(Prefer32Bit)' == 'true' Or '$(PlatformTarget)' == 'x86')">win-x86</_Veldrid_SDL2_NativeRuntime>
 
     <_Veldrid_SDL2_NativeLibName Condition="'$(_Veldrid_SDL2_NativeRuntime)' == 'win-x64'">SDL3.dll</_Veldrid_SDL2_NativeLibName>
-    <_Veldrid_SDL2_NativeLibName Condition="'$(_Veldrid_SDL2_NativeRuntime)' == 'osx-x64'">libsdl2.dylib</_Veldrid_SDL2_NativeLibName>
+    <_Veldrid_SDL2_NativeLibName Condition="'$(_Veldrid_SDL2_NativeRuntime)' == 'osx-x64'">libSDL3.dylib</_Veldrid_SDL2_NativeLibName>
   </PropertyGroup>
   <ItemGroup>
     <Content Condition="'$(_Veldrid_SDL2_NativeRuntime)' != ''" Include="$(MSBuildThisFileDirectory)..\..\runtimes\$(_Veldrid_SDL2_NativeRuntime)\native\$(_Veldrid_SDL2_NativeLibName)">
