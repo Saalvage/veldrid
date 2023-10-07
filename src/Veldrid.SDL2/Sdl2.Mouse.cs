@@ -114,11 +114,11 @@ namespace Veldrid.Sdl2
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void SDL_DestroyCursor_t(SDL_Cursor cursor);
-        private static SDL_DestroyCursor_t s_sdl_DestroyCursor = LoadFunction<SDL_DestroyCursor_t>("SDL_DestroyCursor");
+        private static SDL_DestroyCursor_t s_sdl_destroyCursor = LoadFunction<SDL_DestroyCursor_t>("SDL_DestroyCursor");
         /// <summary>
         /// Free a cursor created with SDL_CreateCursor(), SDL_CreateColorCursor() or SDL_CreateSystemCursor().
         /// </summary>
-        public static void SDL_DestroyCursor(SDL_Cursor cursor) => s_sdl_DestroyCursor(cursor);
+        public static void SDL_DestroyCursor(SDL_Cursor cursor) => s_sdl_destroyCursor(cursor);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate SDL_Cursor SDL_GetDefaultCursor_t();

@@ -4,11 +4,11 @@ namespace Veldrid.Sdl2
 {
     public static unsafe partial class Sdl2Native
     {
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate SDL_Renderer SDL_CreateRenderer_t(SDL_Window SDL2Window, int index, uint flags);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        private delegate SDL_Renderer SDL_CreateRenderer_t(SDL_Window SDL2Window, string name, uint flags);
         private static SDL_CreateRenderer_t s_sdl_createRenderer = LoadFunction<SDL_CreateRenderer_t>("SDL_CreateRenderer");
-        public static SDL_Renderer SDL_CreateRenderer(SDL_Window Sdl2Window, int index, uint flags)
-           => s_sdl_createRenderer(Sdl2Window, index, flags);
+        public static SDL_Renderer SDL_CreateRenderer(SDL_Window Sdl2Window, string name, uint flags)
+           => s_sdl_createRenderer(Sdl2Window, name, flags);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void SDL_DestroyRenderer_t(SDL_Renderer renderer);

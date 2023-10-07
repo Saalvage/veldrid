@@ -72,11 +72,11 @@ namespace Veldrid.Sdl2
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void SDL_ClearError_t();
         private static SDL_ClearError_t s_sdl_clearError = LoadFunction<SDL_ClearError_t>("SDL_ClearError");
-        public static byte* SDL_ClearError() { s_sdl_clearError(); return null; }
+        public static void SDL_ClearError() => s_sdl_clearError();
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void SDL_free_t(void* ptr);
         private static SDL_free_t s_sdl_free = LoadFunction<SDL_free_t>("SDL_free");
-        public static void SDL_free(void* ptr) { s_sdl_free(ptr); }
+        public static void SDL_free(void* ptr) => s_sdl_free(ptr);
     }
 }

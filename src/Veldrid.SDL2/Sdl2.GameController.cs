@@ -262,13 +262,13 @@ namespace Veldrid.Sdl2
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void SDL_UpdateGamepads_t();
-        private static SDL_UpdateGamepads_t s_sdl_UpdateGamepads = LoadFunction<SDL_UpdateGamepads_t>("SDL_UpdateGamepads");
+        private static SDL_UpdateGamepads_t s_sdl_updateGamepads = LoadFunction<SDL_UpdateGamepads_t>("SDL_UpdateGamepads");
         /// <summary>
         /// Update the current state of the open game controllers.
         /// This is called automatically by the event loop if any game controller
         /// events are enabled.
         /// </summary>
-        public static void SDL_UpdateGamepads() => s_sdl_UpdateGamepads();
+        public static void SDL_UpdateGamepads() => s_sdl_updateGamepads();
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate short SDL_GetGamepadAxis_t(SDL_Gamepad gamepad, SDL_GamepadAxis axis);

@@ -28,9 +28,9 @@ namespace Veldrid.Sdl2
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void SDL_GL_SwapWindow_t(SDL_Window SDL2Window);
+        private delegate int SDL_GL_SwapWindow_t(SDL_Window SDL2Window);
         private static SDL_GL_SwapWindow_t s_gl_swapWindow = LoadFunction<SDL_GL_SwapWindow_t>("SDL_GL_SwapWindow");
-        public static void SDL_GL_SwapWindow(SDL_Window Sdl2Window) => s_gl_swapWindow(Sdl2Window);
+        public static int SDL_GL_SwapWindow(SDL_Window Sdl2Window) => s_gl_swapWindow(Sdl2Window);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int SDL_GL_SetAttribute_t(SDL_GLAttribute attr, int value);
@@ -79,12 +79,14 @@ namespace Veldrid.Sdl2
         RetainedBacking,
         ContextMajorVersion,
         ContextMinorVersion,
-        ContextEgl,
         ContextFlags,
         ContextProfileMask,
         ShareWithCurrentContext,
         FramebufferSrgbCapable,
-        ContextReleaseBehavior
+        ContextReleaseBehavior,
+        ContextNoError,
+        ContextFloatBuffers,
+        EglPlatform
     }
 
     public enum SDL_GLContextFlag
@@ -92,7 +94,7 @@ namespace Veldrid.Sdl2
         Debug = 0x0001,
         ForwardCompatible = 0x0002,
         RobustAccess = 0x0004,
-        ResetIsolatio = 0x0008,
+        ResetIsolation = 0x0008,
     }
 
     public enum SDL_GLProfile

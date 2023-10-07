@@ -125,8 +125,7 @@ namespace Veldrid.Sdl2
             get
             {
                 SDL_WindowFlags flags = SDL_GetWindowFlags(_window);
-                if (((flags & SDL_WindowFlags.FullScreenDesktop) == SDL_WindowFlags.FullScreenDesktop)
-                    || ((flags & (SDL_WindowFlags.Borderless | SDL_WindowFlags.Fullscreen)) == (SDL_WindowFlags.Borderless | SDL_WindowFlags.Fullscreen)))
+                if ((flags & (SDL_WindowFlags.Borderless | SDL_WindowFlags.Fullscreen)) == (SDL_WindowFlags.Borderless | SDL_WindowFlags.Fullscreen))
                 {
                     return WindowState.BorderlessFullScreen;
                 }
@@ -153,11 +152,12 @@ namespace Veldrid.Sdl2
             {
                 switch (value)
                 {
+                    // TODO: New fullscreen shit
                     case WindowState.Normal:
-                        SDL_SetWindowFullscreen(_window, SDL_FullscreenMode.Windowed);
+                        SDL_SetWindowFullscreen(_window, false);
                         break;
                     case WindowState.FullScreen:
-                        SDL_SetWindowFullscreen(_window, SDL_FullscreenMode.Fullscreen);
+                        SDL_SetWindowFullscreen(_window, true);
                         break;
                     case WindowState.Maximized:
                         SDL_MaximizeWindow(_window);
@@ -166,7 +166,7 @@ namespace Veldrid.Sdl2
                         SDL_MinimizeWindow(_window);
                         break;
                     case WindowState.BorderlessFullScreen:
-                        SDL_SetWindowFullscreen(_window, SDL_FullscreenMode.FullScreenDesktop);
+                        SDL_SetWindowFullscreen(_window, true);
                         break;
                     case WindowState.Hidden:
                         SDL_HideWindow(_window);
@@ -181,7 +181,7 @@ namespace Veldrid.Sdl2
 
         public bool Visible
         {
-            get => (SDL_GetWindowFlags(_window) & SDL_WindowFlags.Shown) != 0;
+            get => (SDL_GetWindowFlags(_window) & SDL_WindowFlags.Hidden) == 0;
             set
             {
                 if (value)
@@ -358,7 +358,7 @@ namespace Veldrid.Sdl2
         {
             RefreshCachedPosition();
             RefreshCachedSize();
-            if ((flags & SDL_WindowFlags.Shown) == SDL_WindowFlags.Shown)
+            if ((flags & SDL_WindowFlags.Hidden) == SDL_WindowFlags.Hidden)
             {
                 SDL_ShowWindow(_window);
             }
@@ -944,7 +944,7 @@ namespace Veldrid.Sdl2
         {
             SDL_SysWMinfo wmInfo;
             SDL_GetVersion(&wmInfo.version);
-            SDL_GetWMWindowInfo(_window, &wmInfo, 1);
+            SDL_GetWMWindowInfo(_window, &wmInfo);
             switch (wmInfo.subsystem)
             {
                 case SysWMType.Windows:
