@@ -82,7 +82,7 @@ namespace Veldrid.VirtualReality.Sample
                 DeviceBuffer texCoords = CreateDeviceBuffer(
                     mesh.TextureCoordinateChannels[0].Select(v3=>new Vector2(v3.X, v3.Y)).ToArray(),
                     BufferUsage.VertexBuffer);
-                DeviceBuffer indices = CreateDeviceBuffer(mesh.GetUnsignedIndices(), BufferUsage.IndexBuffer);
+                DeviceBuffer indices = CreateDeviceBuffer(mesh.GetUnsignedIndices().ToArray(), BufferUsage.IndexBuffer);
 
                 _meshPieces.Add(new MeshPiece(positions, texCoords, indices));
             }
