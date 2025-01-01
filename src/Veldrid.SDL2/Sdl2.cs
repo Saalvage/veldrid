@@ -1,14 +1,14 @@
-﻿using NativeLibraryLoader;
-using System;
+﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace Veldrid.Sdl2
 {
     public static unsafe partial class Sdl2Native
     {
-        private static readonly NativeLibrary s_sdl2Lib = LoadSdl2();
-        private static NativeLibrary LoadSdl2()
+        private static readonly IntPtr s_sdl2Lib = LoadSdl2();
+        private static IntPtr LoadSdl2()
         {
             string[] names;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -37,8 +37,8 @@ namespace Veldrid.Sdl2
                 names = new[] { "SDL2.dll" };
             }
 
-            NativeLibrary lib = new NativeLibrary(names);
-            return lib;
+            return names.Select(x => NativeLibrary.TryLoad(x, out IntPtr ptr) ? ptr : IntPtr.Zero)
+                .First(x => x != IntPtr.Zero);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Veldrid.Sdl2
         {
             try
             {
-                return s_sdl2Lib.LoadFunction<T>(name);
+                return Marshal.GetDelegateForFunctionPointer<T>(NativeLibrary.GetExport(s_sdl2Lib, name));
             }
             catch
             {

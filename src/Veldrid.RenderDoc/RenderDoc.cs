@@ -1,7 +1,7 @@
-﻿using NativeLibraryLoader;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -14,12 +14,12 @@ namespace Veldrid
     public unsafe class RenderDoc
     {
         private readonly RENDERDOC_API_1_4_0 _api;
-        private readonly NativeLibrary _nativeLib;
+        private readonly IntPtr _nativeLib;
 
-        private unsafe RenderDoc(NativeLibrary lib)
+        private unsafe RenderDoc(IntPtr lib)
         {
             _nativeLib = lib;
-            pRENDERDOC_GetAPI getApiFunc = _nativeLib.LoadFunction<pRENDERDOC_GetAPI>("RENDERDOC_GetAPI");
+            pRENDERDOC_GetAPI getApiFunc = Marshal.GetDelegateForFunctionPointer<pRENDERDOC_GetAPI>(NativeLibrary.GetExport(_nativeLib, "RENDERDOC_GetAPI"));
             void* apiPointers;
             int result = getApiFunc(RENDERDOC_Version.API_Version_1_2_0, &apiPointers);
             if (result != 1)
@@ -359,7 +359,8 @@ namespace Veldrid
         {
             try
             {
-                NativeLibrary lib = new NativeLibrary(renderDocLibPaths);
+                IntPtr lib = renderDocLibPaths.Select(x => NativeLibrary.TryLoad(x, out IntPtr lib) ? lib : IntPtr.Zero)
+                    .First(x => x != IntPtr.Zero);
                 renderDoc = new RenderDoc(lib);
                 return true;
             }

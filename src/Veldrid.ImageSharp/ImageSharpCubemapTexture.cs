@@ -1,4 +1,5 @@
 ﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.IO;
@@ -170,12 +171,12 @@ namespace Veldrid.ImageSharp
 
             for (int level = 0; level < MipLevels; level++)
             {
-                var pixelSpanPosX = CubemapTextures[PositiveXArrayLayer][level].GetPixelSpan();
-                var pixelSpanNegX = CubemapTextures[NegativeXArrayLayer][level].GetPixelSpan();
-                var pixelSpanPosY = CubemapTextures[PositiveYArrayLayer][level].GetPixelSpan();
-                var pixelSpanNegY = CubemapTextures[NegativeYArrayLayer][level].GetPixelSpan();
-                var pixelSpanPosZ = CubemapTextures[PositiveZArrayLayer][level].GetPixelSpan();
-                var pixelSpanNegZ = CubemapTextures[NegativeZArrayLayer][level].GetPixelSpan();
+                Span<Rgba32> pixelSpanPosX = CubemapTextures[PositiveXArrayLayer][level].GetPixelSpan();
+                Span<Rgba32> pixelSpanNegX = CubemapTextures[NegativeXArrayLayer][level].GetPixelSpan();
+                Span<Rgba32> pixelSpanPosY = CubemapTextures[PositiveYArrayLayer][level].GetPixelSpan();
+                Span<Rgba32> pixelSpanNegY = CubemapTextures[NegativeYArrayLayer][level].GetPixelSpan();
+                Span<Rgba32> pixelSpanPosZ = CubemapTextures[PositiveZArrayLayer][level].GetPixelSpan();
+                Span<Rgba32> pixelSpanNegZ = CubemapTextures[NegativeZArrayLayer][level].GetPixelSpan();
 
                 fixed (Rgba32* positiveXPin = &MemoryMarshal.GetReference(pixelSpanPosX))
                 fixed (Rgba32* negativeXPin = &MemoryMarshal.GetReference(pixelSpanNegX))
