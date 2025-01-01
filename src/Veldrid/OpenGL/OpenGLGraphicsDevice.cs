@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Threading;
 using Veldrid.OpenGL.EAGL;
 using static Veldrid.OpenGL.EGL.EGLNative;
-using NativeLibrary = NativeLibraryLoader.NativeLibrary;
+using NativeLibrary = Vulkan.NativeLibrary;
 using System.Runtime.CompilerServices;
 
 namespace Veldrid.OpenGL
@@ -438,9 +438,9 @@ namespace Veldrid.OpenGL
             eaglLayer.frame = uiView.frame;
             uiView.layer.addSublayer(eaglLayer.NativePtr);
 
-            NativeLibrary glesLibrary = new NativeLibrary("/System/Library/Frameworks/OpenGLES.framework/OpenGLES");
+            NativeLibrary glesLibrary = NativeLibrary.Load("/System/Library/Frameworks/OpenGLES.framework/OpenGLES");
 
-            Func<string, IntPtr> getProcAddress = name => glesLibrary.LoadFunction(name);
+            Func<string, IntPtr> getProcAddress = name => glesLibrary.LoadFunctionPointer(name);
 
             LoadAllFunctions(eaglContext.NativePtr, getProcAddress, true);
 

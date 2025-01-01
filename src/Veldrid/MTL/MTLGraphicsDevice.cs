@@ -5,7 +5,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
-using NativeLibrary = NativeLibraryLoader.NativeLibrary;
+using NativeLibrary = Vulkan.NativeLibrary;
 using Veldrid.MetalBindings;
 
 namespace Veldrid.MTL
@@ -82,8 +82,8 @@ namespace Veldrid.MTL
                 shaderFloat64: false);
             ResourceBindingModel = options.ResourceBindingModel;
 
-            _libSystem = new NativeLibrary("libSystem.dylib");
-            _concreteGlobalBlock = _libSystem.LoadFunction("_NSConcreteGlobalBlock");
+            _libSystem = NativeLibrary.Load("libSystem.dylib");
+            _concreteGlobalBlock = _libSystem.LoadFunctionPointer("_NSConcreteGlobalBlock");
             if (MetalFeatures.IsMacOS)
             {
                 _completionHandler = OnCommandBufferCompleted;

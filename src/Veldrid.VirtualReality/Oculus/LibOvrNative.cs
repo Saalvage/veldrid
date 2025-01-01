@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using NativeLibraryLoader;
+using Vulkan;
 
 namespace Veldrid.VirtualReality.Oculus
 {
@@ -21,49 +21,51 @@ namespace Veldrid.VirtualReality.Oculus
             string libName = Environment.Is64BitProcess ? LibName64 : LibName32;
             try
             {
-                NativeLibrary lib = new NativeLibrary(libName);
+                NativeLibrary lib = NativeLibrary.Load(libName);
 
-                p_ovr_Initialize = lib.LoadFunction<ovr_Initialize_t>("ovr_Initialize");
-                p_ovr_Shutdown = lib.LoadFunction<ovr_Shutdown_t>("ovr_Shutdown");
-                p_ovr_GetLastErrorInfo = lib.LoadFunction<ovr_GetLastErrorInfo_t>("ovr_GetLastErrorInfo");
-                p_ovr_Create = lib.LoadFunction<ovr_Create_t>("ovr_Create");
-                p_ovr_Destroy = lib.LoadFunction<ovr_Destroy_t>("ovr_Destroy");
-                p_ovr_GetHmdDesc = lib.LoadFunction<ovr_GetHmdDesc_t>("ovr_GetHmdDesc");
-                p_ovr_GetTrackerCount = lib.LoadFunction<ovr_GetTrackerCount_t>("ovr_GetTrackerCount");
-                p_ovr_GetFovTextureSize = lib.LoadFunction<ovr_GetFovTextureSize_t>("ovr_GetFovTextureSize");
-                p_ovr_CreateTextureSwapChainDX = lib.LoadFunction<ovr_CreateTextureSwapChainDX_t>("ovr_CreateTextureSwapChainDX");
-                p_ovr_GetTextureSwapChainLength = lib.LoadFunction<ovr_GetTextureSwapChainLength_t>("ovr_GetTextureSwapChainLength");
-                p_ovr_GetTextureSwapChainBufferDX = lib.LoadFunction<ovr_GetTextureSwapChainBufferDX_t>("ovr_GetTextureSwapChainBufferDX");
-                p_ovr_GetTextureSwapChainCurrentIndex = lib.LoadFunction<ovr_GetTextureSwapChainCurrentIndex_t>("ovr_GetTextureSwapChainCurrentIndex");
-                p_ovr_DestroyTextureSwapChain = lib.LoadFunction<ovr_DestroyTextureSwapChain_t>("ovr_DestroyTextureSwapChain");
-                p_ovr_CommitTextureSwapChain = lib.LoadFunction<ovr_CommitTextureSwapChain_t>("ovr_CommitTextureSwapChain");
-                p_ovr_GetRenderDesc2 = lib.LoadFunction<ovr_GetRenderDesc2_t>("ovr_GetRenderDesc2");
-                p_ovr_CalcEyePoses = lib.LoadFunction<ovr_CalcEyePoses_t>("ovr_CalcEyePoses");
-                p_ovr_GetPredictedDisplayTime = lib.LoadFunction<ovr_GetPredictedDisplayTime_t>("ovr_GetPredictedDisplayTime");
-                p_ovr_GetTrackingState = lib.LoadFunction<ovr_GetTrackingState_t>("ovr_GetTrackingState");
-                p_ovr_CreateMirrorTextureWithOptionsDX = lib.LoadFunction<ovr_CreateMirrorTextureWithOptionsDX_t>("ovr_CreateMirrorTextureWithOptionsDX");
-                p_ovr_SetTrackingOriginType = lib.LoadFunction<ovr_SetTrackingOriginType_t>("ovr_SetTrackingOriginType");
-                p_ovr_GetSessionStatus = lib.LoadFunction<ovr_GetSessionStatus_t>("ovr_GetSessionStatus");
-                p_ovr_RecenterTrackingOrigin = lib.LoadFunction<ovr_RecenterTrackingOrigin_t>("ovr_RecenterTrackingOrigin");
-                p_ovrTimewarpProjectionDesc_FromProjection = lib.LoadFunction<ovrTimewarpProjectionDesc_FromProjection_t>("ovrTimewarpProjectionDesc_FromProjection");
-                p_ovr_GetEyePoses = lib.LoadFunction<ovr_GetEyePoses_t>("ovr_GetEyePoses");
-                p_ovr_SubmitFrame = lib.LoadFunction<ovr_SubmitFrame_t>("ovr_SubmitFrame");
-                p_ovr_GetMirrorTextureBufferDX = lib.LoadFunction<ovr_GetMirrorTextureBufferDX_t>("ovr_GetMirrorTextureBufferDX");
-                p_ovrMatrix4f_Projection = lib.LoadFunction<ovrMatrix4f_Projection_t>("ovrMatrix4f_Projection");
-                p_ovr_GetTimeInSeconds = lib.LoadFunction<ovr_GetTimeInSeconds_t>("ovr_GetTimeInSeconds");
-                p_ovr_CreateTextureSwapChainGL = lib.LoadFunction<ovr_CreateTextureSwapChainGL_t>("ovr_CreateTextureSwapChainGL");
-                p_ovr_GetTextureSwapChainBufferGL = lib.LoadFunction<ovr_GetTextureSwapChainBufferGL_t>("ovr_GetTextureSwapChainBufferGL");
-                p_ovr_CreateMirrorTextureWithOptionsGL = lib.LoadFunction<ovr_CreateMirrorTextureWithOptionsGL_t>("ovr_CreateMirrorTextureWithOptionsGL");
-                p_ovr_GetMirrorTextureBufferGL = lib.LoadFunction<ovr_GetMirrorTextureBufferGL_t>("ovr_GetMirrorTextureBufferGL");
-                p_ovr_GetInstanceExtensionsVk = lib.LoadFunction<ovr_GetInstanceExtensionsVk_t>("ovr_GetInstanceExtensionsVk");
-                p_ovr_GetSessionPhysicalDeviceVk = lib.LoadFunction<ovr_GetSessionPhysicalDeviceVk_t>("ovr_GetSessionPhysicalDeviceVk");
-                p_ovr_SetSynchonizationQueueVk = lib.LoadFunction<ovr_SetSynchonizationQueueVk_t>("ovr_SetSynchonizationQueueVk");
-                p_ovr_CreateTextureSwapChainVk = lib.LoadFunction<ovr_CreateTextureSwapChainVk_t>("ovr_CreateTextureSwapChainVk");
-                p_ovr_GetTextureSwapChainBufferVk = lib.LoadFunction<ovr_GetTextureSwapChainBufferVk_t>("ovr_GetTextureSwapChainBufferVk");
-                p_ovr_CreateMirrorTextureWithOptionsVk = lib.LoadFunction<ovr_CreateMirrorTextureWithOptionsVk_t>("ovr_CreateMirrorTextureWithOptionsVk");
-                p_ovr_GetMirrorTextureBufferVk = lib.LoadFunction<ovr_GetMirrorTextureBufferVk_t>("ovr_GetMirrorTextureBufferVk");
-                p_ovr_GetDeviceExtensionsVk = lib.LoadFunction<ovr_GetDeviceExtensionsVk_t>("ovr_GetDeviceExtensionsVk");
-                p_ovr_DestroyMirrorTexture = lib.LoadFunction<ovr_DestroyMirrorTexture_t>("ovr_DestroyMirrorTexture");
+                p_ovr_Initialize = LoadFunc<ovr_Initialize_t>("ovr_Initialize");
+                p_ovr_Shutdown = LoadFunc<ovr_Shutdown_t>("ovr_Shutdown");
+                p_ovr_GetLastErrorInfo = LoadFunc<ovr_GetLastErrorInfo_t>("ovr_GetLastErrorInfo");
+                p_ovr_Create = LoadFunc<ovr_Create_t>("ovr_Create");
+                p_ovr_Destroy = LoadFunc<ovr_Destroy_t>("ovr_Destroy");
+                p_ovr_GetHmdDesc = LoadFunc<ovr_GetHmdDesc_t>("ovr_GetHmdDesc");
+                p_ovr_GetTrackerCount = LoadFunc<ovr_GetTrackerCount_t>("ovr_GetTrackerCount");
+                p_ovr_GetFovTextureSize = LoadFunc<ovr_GetFovTextureSize_t>("ovr_GetFovTextureSize");
+                p_ovr_CreateTextureSwapChainDX = LoadFunc<ovr_CreateTextureSwapChainDX_t>("ovr_CreateTextureSwapChainDX");
+                p_ovr_GetTextureSwapChainLength = LoadFunc<ovr_GetTextureSwapChainLength_t>("ovr_GetTextureSwapChainLength");
+                p_ovr_GetTextureSwapChainBufferDX = LoadFunc<ovr_GetTextureSwapChainBufferDX_t>("ovr_GetTextureSwapChainBufferDX");
+                p_ovr_GetTextureSwapChainCurrentIndex = LoadFunc<ovr_GetTextureSwapChainCurrentIndex_t>("ovr_GetTextureSwapChainCurrentIndex");
+                p_ovr_DestroyTextureSwapChain = LoadFunc<ovr_DestroyTextureSwapChain_t>("ovr_DestroyTextureSwapChain");
+                p_ovr_CommitTextureSwapChain = LoadFunc<ovr_CommitTextureSwapChain_t>("ovr_CommitTextureSwapChain");
+                p_ovr_GetRenderDesc2 = LoadFunc<ovr_GetRenderDesc2_t>("ovr_GetRenderDesc2");
+                p_ovr_CalcEyePoses = LoadFunc<ovr_CalcEyePoses_t>("ovr_CalcEyePoses");
+                p_ovr_GetPredictedDisplayTime = LoadFunc<ovr_GetPredictedDisplayTime_t>("ovr_GetPredictedDisplayTime");
+                p_ovr_GetTrackingState = LoadFunc<ovr_GetTrackingState_t>("ovr_GetTrackingState");
+                p_ovr_CreateMirrorTextureWithOptionsDX = LoadFunc<ovr_CreateMirrorTextureWithOptionsDX_t>("ovr_CreateMirrorTextureWithOptionsDX");
+                p_ovr_SetTrackingOriginType = LoadFunc<ovr_SetTrackingOriginType_t>("ovr_SetTrackingOriginType");
+                p_ovr_GetSessionStatus = LoadFunc<ovr_GetSessionStatus_t>("ovr_GetSessionStatus");
+                p_ovr_RecenterTrackingOrigin = LoadFunc<ovr_RecenterTrackingOrigin_t>("ovr_RecenterTrackingOrigin");
+                p_ovrTimewarpProjectionDesc_FromProjection = LoadFunc<ovrTimewarpProjectionDesc_FromProjection_t>("ovrTimewarpProjectionDesc_FromProjection");
+                p_ovr_GetEyePoses = LoadFunc<ovr_GetEyePoses_t>("ovr_GetEyePoses");
+                p_ovr_SubmitFrame = LoadFunc<ovr_SubmitFrame_t>("ovr_SubmitFrame");
+                p_ovr_GetMirrorTextureBufferDX = LoadFunc<ovr_GetMirrorTextureBufferDX_t>("ovr_GetMirrorTextureBufferDX");
+                p_ovrMatrix4f_Projection = LoadFunc<ovrMatrix4f_Projection_t>("ovrMatrix4f_Projection");
+                p_ovr_GetTimeInSeconds = LoadFunc<ovr_GetTimeInSeconds_t>("ovr_GetTimeInSeconds");
+                p_ovr_CreateTextureSwapChainGL = LoadFunc<ovr_CreateTextureSwapChainGL_t>("ovr_CreateTextureSwapChainGL");
+                p_ovr_GetTextureSwapChainBufferGL = LoadFunc<ovr_GetTextureSwapChainBufferGL_t>("ovr_GetTextureSwapChainBufferGL");
+                p_ovr_CreateMirrorTextureWithOptionsGL = LoadFunc<ovr_CreateMirrorTextureWithOptionsGL_t>("ovr_CreateMirrorTextureWithOptionsGL");
+                p_ovr_GetMirrorTextureBufferGL = LoadFunc<ovr_GetMirrorTextureBufferGL_t>("ovr_GetMirrorTextureBufferGL");
+                p_ovr_GetInstanceExtensionsVk = LoadFunc<ovr_GetInstanceExtensionsVk_t>("ovr_GetInstanceExtensionsVk");
+                p_ovr_GetSessionPhysicalDeviceVk = LoadFunc<ovr_GetSessionPhysicalDeviceVk_t>("ovr_GetSessionPhysicalDeviceVk");
+                p_ovr_SetSynchonizationQueueVk = LoadFunc<ovr_SetSynchonizationQueueVk_t>("ovr_SetSynchonizationQueueVk");
+                p_ovr_CreateTextureSwapChainVk = LoadFunc<ovr_CreateTextureSwapChainVk_t>("ovr_CreateTextureSwapChainVk");
+                p_ovr_GetTextureSwapChainBufferVk = LoadFunc<ovr_GetTextureSwapChainBufferVk_t>("ovr_GetTextureSwapChainBufferVk");
+                p_ovr_CreateMirrorTextureWithOptionsVk = LoadFunc<ovr_CreateMirrorTextureWithOptionsVk_t>("ovr_CreateMirrorTextureWithOptionsVk");
+                p_ovr_GetMirrorTextureBufferVk = LoadFunc<ovr_GetMirrorTextureBufferVk_t>("ovr_GetMirrorTextureBufferVk");
+                p_ovr_GetDeviceExtensionsVk = LoadFunc<ovr_GetDeviceExtensionsVk_t>("ovr_GetDeviceExtensionsVk");
+                p_ovr_DestroyMirrorTexture = LoadFunc<ovr_DestroyMirrorTexture_t>("ovr_DestroyMirrorTexture");
+
+                T LoadFunc<T>(string name) => Marshal.GetDelegateForFunctionPointer<T>(lib.LoadFunctionPointer(name));
 
                 return lib;
             }

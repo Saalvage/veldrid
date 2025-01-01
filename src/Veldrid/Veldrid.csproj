@@ -20,8 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NativeLibraryLoader" Version="$(NativeLibraryLoaderVersion)" />
-
     <PackageReference Include="Vk" Version="1.0.25" Condition="'$(ExcludeVulkan)' != 'true'" />
 
     <PackageReference Include="Vortice.D3DCompiler" Version="$(VorticeWindowsVersion)" Condition="'$(ExcludeD3D11)' != 'true'" />
