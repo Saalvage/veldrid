@@ -1,15 +1,14 @@
 ﻿using System;
-using static Veldrid.OpenGLBinding.OpenGLNative;
 using static Veldrid.OpenGL.OpenGLUtil;
-using Veldrid.OpenGLBinding;
 using System.Diagnostics;
+using OpenTK.Graphics.OpenGL;
 
 namespace Veldrid.OpenGL
 {
     internal unsafe class OpenGLBuffer : DeviceBuffer, OpenGLDeferredResource
     {
         private readonly OpenGLGraphicsDevice _gd;
-        private uint _buffer;
+        private int _buffer;
         private bool _dynamic;
         private bool _disposeRequested;
 
@@ -21,7 +20,7 @@ namespace Veldrid.OpenGL
         public override uint SizeInBytes { get; }
         public override BufferUsage Usage { get; }
 
-        public uint Buffer => _buffer;
+        public int Buffer => _buffer;
 
         public bool Created { get; private set; }
 
@@ -57,12 +56,12 @@ namespace Veldrid.OpenGL
 
             if (_gd.Extensions.ARB_DirectStateAccess)
             {
-                uint buffer;
-                glCreateBuffers(1, &buffer);
+                int buffer;
+                GL.CreateBuffers(1, &buffer);
                 CheckLastError();
                 _buffer = buffer;
 
-                glNamedBufferData(
+                GL.NamedBufferData(
                     _buffer,
                     SizeInBytes,
                     null,
@@ -71,13 +70,13 @@ namespace Veldrid.OpenGL
             }
             else
             {
-                glGenBuffers(1, out _buffer);
+                GL.GenBuffers(1, out _buffer);
                 CheckLastError();
 
-                glBindBuffer(BufferTarget.CopyReadBuffer, _buffer);
+                GL.BindBuffer(BufferTarget.CopyReadBuffer, _buffer);
                 CheckLastError();
 
-                glBufferData(
+                GL.BufferData(
                     BufferTarget.CopyReadBuffer,
                     (UIntPtr)SizeInBytes,
                     null,
@@ -100,7 +99,7 @@ namespace Veldrid.OpenGL
         public void DestroyGLResources()
         {
             uint buffer = _buffer;
-            glDeleteBuffers(1, ref buffer);
+            GL.DeleteBuffers(1, ref buffer);
             CheckLastError();
         }
     }

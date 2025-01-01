@@ -1,8 +1,6 @@
-﻿using static Veldrid.OpenGLBinding.OpenGLNative;
-using static Veldrid.OpenGL.OpenGLUtil;
-using Veldrid.OpenGLBinding;
+﻿using static Veldrid.OpenGL.OpenGLUtil;
 using System.Text;
-using System;
+using OpenTK.Graphics.OpenGL;
 
 namespace Veldrid.OpenGL
 {
@@ -64,32 +62,32 @@ namespace Veldrid.OpenGL
 
         private void CreateGLResources()
         {
-            _shader = glCreateShader(_shaderType);
+            _shader = GL.CreateShader(_shaderType);
             CheckLastError();
 
             byte* textPtr = (byte*)_stagingBlock.Data;
             int length = (int)_stagingBlock.SizeInBytes;
             byte** textsPtr = &textPtr;
 
-            glShaderSource(_shader, 1, textsPtr, &length);
+            GL.ShaderSource(_shader, 1, textsPtr, &length);
             CheckLastError();
 
-            glCompileShader(_shader);
+            GL.CompileShader(_shader);
             CheckLastError();
 
             int compileStatus;
-            glGetShaderiv(_shader, ShaderParameter.CompileStatus, &compileStatus);
+            GL.GetShaderiv(_shader, ShaderParameter.CompileStatus, &compileStatus);
             CheckLastError();
 
             if (compileStatus != 1)
             {
                 int infoLogLength;
-                glGetShaderiv(_shader, ShaderParameter.InfoLogLength, &infoLogLength);
+                GL.GetShaderiv(_shader, ShaderParameter.InfoLogLength, &infoLogLength);
                 CheckLastError();
 
                 byte* infoLog = stackalloc byte[infoLogLength];
                 uint returnedInfoLength;
-                glGetShaderInfoLog(_shader, (uint)infoLogLength, &returnedInfoLength, infoLog);
+                GL.GetShaderInfoLog(_shader, (uint)infoLogLength, &returnedInfoLength, infoLog);
                 CheckLastError();
 
                 string message = infoLog != null
@@ -119,7 +117,7 @@ namespace Veldrid.OpenGL
                 _disposed = true;
                 if (Created)
                 {
-                    glDeleteShader(_shader);
+                    GL.DeleteShader(_shader);
                     CheckLastError();
                 }
                 else

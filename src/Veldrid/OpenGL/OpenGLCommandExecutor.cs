@@ -1,8 +1,7 @@
 ﻿using System;
-using static Veldrid.OpenGLBinding.OpenGLNative;
 using static Veldrid.OpenGL.OpenGLUtil;
-using Veldrid.OpenGLBinding;
 using System.Text;
+using OpenTK.Graphics.OpenGL;
 
 namespace Veldrid.OpenGL
 {
@@ -57,26 +56,26 @@ namespace Veldrid.OpenGL
             if (!_isSwapchainFB)
             {
                 DrawBuffersEnum bufs = (DrawBuffersEnum)((uint)DrawBuffersEnum.ColorAttachment0 + index);
-                glDrawBuffers(1, &bufs);
+                GL.DrawBuffers(1, &bufs);
                 CheckLastError();
             }
 
             RgbaFloat color = clearColor;
-            glClearColor(color.R, color.G, color.B, color.A);
+            GL.ClearColor(color.R, color.G, color.B, color.A);
             CheckLastError();
 
             if (_graphicsPipeline != null && _graphicsPipeline.RasterizerState.ScissorTestEnabled)
             {
-                glDisable(EnableCap.ScissorTest);
+                GL.Disable(EnableCap.ScissorTest);
                 CheckLastError();
             }
 
-            glClear(ClearBufferMask.ColorBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit);
             CheckLastError();
 
             if (_graphicsPipeline != null && _graphicsPipeline.RasterizerState.ScissorTestEnabled)
             {
-                glEnable(EnableCap.ScissorTest);
+                GL.Enable(EnableCap.ScissorTest);
             }
 
             if (!_isSwapchainFB)
@@ -87,35 +86,35 @@ namespace Veldrid.OpenGL
                 {
                     bufs[i] = DrawBuffersEnum.ColorAttachment0 + i;
                 }
-                glDrawBuffers((uint)colorCount, bufs);
+                GL.DrawBuffers(colorCount, bufs);
                 CheckLastError();
             }
         }
 
         public void ClearDepthStencil(float depth, byte stencil)
         {
-            glClearDepth_Compat(depth);
+            GL.ClearDepth(depth);
             CheckLastError();
 
-            glStencilMask(~0u);
+            GL.StencilMask(~0u);
             CheckLastError();
 
-            glClearStencil(stencil);
+            GL.ClearStencil(stencil);
             CheckLastError();
 
             if (_graphicsPipeline != null && _graphicsPipeline.RasterizerState.ScissorTestEnabled)
             {
-                glDisable(EnableCap.ScissorTest);
+                GL.Disable(EnableCap.ScissorTest);
                 CheckLastError();
             }
 
-            glDepthMask(true);
-            glClear(ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+            GL.DepthMask(true);
+            GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
             CheckLastError();
 
             if (_graphicsPipeline != null && _graphicsPipeline.RasterizerState.ScissorTestEnabled)
             {
-                glEnable(EnableCap.ScissorTest);
+                GL.Enable(EnableCap.ScissorTest);
             }
         }
 
@@ -125,19 +124,19 @@ namespace Veldrid.OpenGL
 
             if (instanceCount == 1 && instanceStart == 0)
             {
-                glDrawArrays(_primitiveType, (int)vertexStart, vertexCount);
+                GL.DrawArrays(_primitiveType, (int)vertexStart, vertexCount);
                 CheckLastError();
             }
             else
             {
                 if (instanceStart == 0)
                 {
-                    glDrawArraysInstanced(_primitiveType, (int)vertexStart, vertexCount, instanceCount);
+                    GL.DrawArraysInstanced(_primitiveType, (int)vertexStart, vertexCount, instanceCount);
                     CheckLastError();
                 }
                 else
                 {
-                    glDrawArraysInstancedBaseInstance(_primitiveType, (int)vertexStart, vertexCount, instanceCount, instanceStart);
+                    GL.DrawArraysInstancedBaseInstance(_primitiveType, (int)vertexStart, vertexCount, instanceCount, instanceStart);
                     CheckLastError();
                 }
             }
@@ -154,12 +153,12 @@ namespace Veldrid.OpenGL
             {
                 if (vertexOffset == 0)
                 {
-                    glDrawElements(_primitiveType, indexCount, _drawElementsType, indices);
+                    GL.DrawElements(_primitiveType, indexCount, _drawElementsType, indices);
                     CheckLastError();
                 }
                 else
                 {
-                    glDrawElementsBaseVertex(_primitiveType, indexCount, _drawElementsType, indices, vertexOffset);
+                    GL.DrawElementsBaseVertex(_primitiveType, indexCount, _drawElementsType, indices, vertexOffset);
                     CheckLastError();
                 }
             }
@@ -167,7 +166,7 @@ namespace Veldrid.OpenGL
             {
                 if (instanceStart > 0)
                 {
-                    glDrawElementsInstancedBaseVertexBaseInstance(
+                    GL.DrawElementsInstancedBaseVertexBaseInstance(
                         _primitiveType,
                         indexCount,
                         _drawElementsType,
@@ -179,12 +178,12 @@ namespace Veldrid.OpenGL
                 }
                 else if (vertexOffset == 0)
                 {
-                    glDrawElementsInstanced(_primitiveType, indexCount, _drawElementsType, indices, instanceCount);
+                    GL.DrawElementsInstanced(_primitiveType, indexCount, _drawElementsType, indices, instanceCount);
                     CheckLastError();
                 }
                 else
                 {
-                    glDrawElementsInstancedBaseVertex(
+                    GL.DrawElementsInstancedBaseVertex(
                         _primitiveType,
                         indexCount,
                         _drawElementsType,
@@ -201,12 +200,12 @@ namespace Veldrid.OpenGL
             PreDrawCommand();
 
             OpenGLBuffer glBuffer = Util.AssertSubtype<DeviceBuffer, OpenGLBuffer>(indirectBuffer);
-            glBindBuffer(BufferTarget.DrawIndirectBuffer, glBuffer.Buffer);
+            GL.BindBuffer(BufferTarget.DrawIndirectBuffer, glBuffer.Buffer);
             CheckLastError();
 
             if (_extensions.MultiDrawIndirect)
             {
-                glMultiDrawArraysIndirect(_primitiveType, (IntPtr)offset, drawCount, stride);
+                GL.MultiDrawArraysIndirect(_primitiveType, (IntPtr)offset, (int)drawCount, (int)stride);
                 CheckLastError();
             }
             else
@@ -214,7 +213,7 @@ namespace Veldrid.OpenGL
                 uint indirect = offset;
                 for (uint i = 0; i < drawCount; i++)
                 {
-                    glDrawArraysIndirect(_primitiveType, (IntPtr)indirect);
+                    GL.DrawArraysIndirect(_primitiveType, (IntPtr)indirect);
                     CheckLastError();
 
                     indirect += stride;
@@ -227,12 +226,12 @@ namespace Veldrid.OpenGL
             PreDrawCommand();
 
             OpenGLBuffer glBuffer = Util.AssertSubtype<DeviceBuffer, OpenGLBuffer>(indirectBuffer);
-            glBindBuffer(BufferTarget.DrawIndirectBuffer, glBuffer.Buffer);
+            GL.BindBuffer(BufferTarget.DrawIndirectBuffer, glBuffer.Buffer);
             CheckLastError();
 
             if (_extensions.MultiDrawIndirect)
             {
-                glMultiDrawElementsIndirect(_primitiveType, _drawElementsType, (IntPtr)offset, drawCount, stride);
+                GL.MultiDrawElementsIndirect(_primitiveType, _drawElementsType, (IntPtr)offset, (int)drawCount, (int)stride);
                 CheckLastError();
             }
             else
@@ -240,7 +239,7 @@ namespace Veldrid.OpenGL
                 uint indirect = offset;
                 for (uint i = 0; i < drawCount; i++)
                 {
-                    glDrawElementsIndirect(_primitiveType, _drawElementsType, (IntPtr)indirect);
+                    GL.DrawElementsIndirect(_primitiveType, _drawElementsType, (IntPtr)indirect);
                     CheckLastError();
 
                     indirect += stride;
@@ -289,7 +288,7 @@ namespace Veldrid.OpenGL
             {
                 VertexLayoutDescription input = layouts[i];
                 OpenGLBuffer vb = _vertexBuffers[i];
-                glBindBuffer(BufferTarget.ArrayBuffer, vb.Buffer);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, vb.Buffer);
                 uint offset = 0;
                 uint vbOffset = _vbOffsets[i];
                 for (uint slot = 0; slot < input.Elements.Length; slot++)
@@ -298,7 +297,7 @@ namespace Veldrid.OpenGL
                     uint actualSlot = totalSlotsBound + slot;
                     if (actualSlot >= _vertexAttributesBound)
                     {
-                        glEnableVertexAttribArray(actualSlot);
+                        GL.EnableVertexAttribArray(actualSlot);
                     }
                     VertexAttribPointerType type = OpenGLFormats.VdToGLVertexAttribPointerType(
                         element.Format,
@@ -310,17 +309,17 @@ namespace Veldrid.OpenGL
 
                     if (isInteger && !normalized)
                     {
-                        glVertexAttribIPointer(
-                            actualSlot,
+                        GL.VertexAttribIPointer(
+                            (int)actualSlot,
                             FormatHelpers.GetElementCount(element.Format),
                             type,
                             (uint)_graphicsPipeline.VertexStrides[i],
-                            (void*)actualOffset);
+                            (IntPtr)actualOffset);
                         CheckLastError();
                     }
                     else
                     {
-                        glVertexAttribPointer(
+                        GL.VertexAttribPointer(
                             actualSlot,
                             FormatHelpers.GetElementCount(element.Format),
                             type,
@@ -333,7 +332,7 @@ namespace Veldrid.OpenGL
                     uint stepRate = input.InstanceStepRate;
                     if (_vertexAttribDivisors[actualSlot] != stepRate)
                     {
-                        glVertexAttribDivisor(actualSlot, stepRate);
+                        GL.VertexAttribDivisor(actualSlot, stepRate);
                         _vertexAttribDivisors[actualSlot] = stepRate;
                     }
 
@@ -345,7 +344,7 @@ namespace Veldrid.OpenGL
 
             for (uint extraSlot = totalSlotsBound; extraSlot < _vertexAttributesBound; extraSlot++)
             {
-                glDisableVertexAttribArray(extraSlot);
+                GL.DisableVertexAttribArray(extraSlot);
             }
 
             _vertexAttributesBound = totalSlotsBound;
@@ -355,7 +354,7 @@ namespace Veldrid.OpenGL
         {
             PreDispatchCommand();
 
-            glDispatchCompute(groupCountX, groupCountY, groupCountZ);
+            GL.DispatchCompute(groupCountX, groupCountY, groupCountZ);
             CheckLastError();
 
             PostDispatchCommand();
@@ -366,10 +365,10 @@ namespace Veldrid.OpenGL
             PreDispatchCommand();
 
             OpenGLBuffer glBuffer = Util.AssertSubtype<DeviceBuffer, OpenGLBuffer>(indirectBuffer);
-            glBindBuffer(BufferTarget.DrawIndirectBuffer, glBuffer.Buffer);
+            GL.BindBuffer(BufferTarget.DrawIndirectBuffer, glBuffer.Buffer);
             CheckLastError();
 
-            glDispatchComputeIndirect((IntPtr)offset);
+            GL.DispatchComputeIndirect((IntPtr)offset);
             CheckLastError();
 
             PostDispatchCommand();
@@ -388,7 +387,7 @@ namespace Veldrid.OpenGL
         private static void PostDispatchCommand()
         {
             // TODO: Smart barriers?
-            glMemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
+            GL.MemoryBarrier(MemoryBarrierFlags.AllBarrierBits);
             CheckLastError();
         }
 
@@ -402,12 +401,12 @@ namespace Veldrid.OpenGL
             {
                 if (_backend == GraphicsBackend.OpenGL || _extensions.EXT_sRGBWriteControl)
                 {
-                    glEnable(EnableCap.FramebufferSrgb);
+                    GL.Enable(EnableCap.FramebufferSrgb);
                     CheckLastError();
                 }
 
                 glFB.EnsureResourcesCreated();
-                glBindFramebuffer(FramebufferTarget.Framebuffer, glFB.Framebuffer);
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, glFB.Framebuffer);
                 CheckLastError();
                 _isSwapchainFB = false;
             }
@@ -417,12 +416,12 @@ namespace Veldrid.OpenGL
                 {
                     if (swapchainFB.DisableSrgbConversion)
                     {
-                        glDisable(EnableCap.FramebufferSrgb);
+                        GL.Disable(EnableCap.FramebufferSrgb);
                         CheckLastError();
                     }
                     else
                     {
-                        glEnable(EnableCap.FramebufferSrgb);
+                        GL.Enable(EnableCap.FramebufferSrgb);
                         CheckLastError();
                     }
                 }
@@ -433,7 +432,7 @@ namespace Veldrid.OpenGL
                 }
                 else
                 {
-                    glBindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
                     CheckLastError();
                 }
 
@@ -452,7 +451,7 @@ namespace Veldrid.OpenGL
             OpenGLBuffer glIB = Util.AssertSubtype<DeviceBuffer, OpenGLBuffer>(ib);
             glIB.EnsureResourcesCreated();
 
-            glBindBuffer(BufferTarget.ElementArrayBuffer, glIB.Buffer);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, glIB.Buffer);
             CheckLastError();
 
             _drawElementsType = OpenGLFormats.VdToGLDrawElementsType(format);
@@ -492,17 +491,17 @@ namespace Veldrid.OpenGL
             // Blend State
 
             BlendStateDescription blendState = _graphicsPipeline.BlendState;
-            glBlendColor(blendState.BlendFactor.R, blendState.BlendFactor.G, blendState.BlendFactor.B, blendState.BlendFactor.A);
+            GL.BlendColor(blendState.BlendFactor.R, blendState.BlendFactor.G, blendState.BlendFactor.B, blendState.BlendFactor.A);
             CheckLastError();
 
             if (blendState.AlphaToCoverageEnabled)
             {
-                glEnable(EnableCap.SampleAlphaToCoverage);
+                GL.Enable(EnableCap.SampleAlphaToCoverage);
                 CheckLastError();
             }
             else
             {
-                glDisable(EnableCap.SampleAlphaToCoverage);
+                GL.Disable(EnableCap.SampleAlphaToCoverage);
                 CheckLastError();
             }
 
@@ -513,7 +512,7 @@ namespace Veldrid.OpenGL
                     BlendAttachmentDescription attachment = blendState.AttachmentStates[i];
                     ColorWriteMask colorMask = attachment.ColorWriteMask.GetOrDefault();
 
-                    glColorMaski(
+                    GL.ColorMaski(
                         i,
                         (colorMask & ColorWriteMask.Red) == ColorWriteMask.Red,
                         (colorMask & ColorWriteMask.Green) == ColorWriteMask.Green,
@@ -523,15 +522,15 @@ namespace Veldrid.OpenGL
 
                     if (!attachment.BlendEnabled)
                     {
-                        glDisablei(EnableCap.Blend, i);
+                        GL.Disablei(EnableCap.Blend, i);
                         CheckLastError();
                     }
                     else
                     {
-                        glEnablei(EnableCap.Blend, i);
+                        GL.Enablei(EnableCap.Blend, i);
                         CheckLastError();
 
-                        glBlendFuncSeparatei(
+                        GL.BlendFuncSeparatei(
                             i,
                             OpenGLFormats.VdToGLBlendFactorSrc(attachment.SourceColorFactor),
                             OpenGLFormats.VdToGLBlendFactorDest(attachment.DestinationColorFactor),
@@ -539,7 +538,7 @@ namespace Veldrid.OpenGL
                             OpenGLFormats.VdToGLBlendFactorDest(attachment.DestinationAlphaFactor));
                         CheckLastError();
 
-                        glBlendEquationSeparatei(
+                        GL.BlendEquationSeparatei(
                             i,
                             OpenGLFormats.VdToGLBlendEquationMode(attachment.ColorFunction),
                             OpenGLFormats.VdToGLBlendEquationMode(attachment.AlphaFunction));
@@ -552,7 +551,7 @@ namespace Veldrid.OpenGL
                 BlendAttachmentDescription attachment = blendState.AttachmentStates[0];
                 ColorWriteMask colorMask = attachment.ColorWriteMask.GetOrDefault();
 
-                glColorMask(
+                GL.ColorMask(
                     (colorMask & ColorWriteMask.Red) == ColorWriteMask.Red,
                     (colorMask & ColorWriteMask.Green) == ColorWriteMask.Green,
                     (colorMask & ColorWriteMask.Blue) == ColorWriteMask.Blue,
@@ -561,22 +560,22 @@ namespace Veldrid.OpenGL
 
                 if (!attachment.BlendEnabled)
                 {
-                    glDisable(EnableCap.Blend);
+                    GL.Disable(EnableCap.Blend);
                     CheckLastError();
                 }
                 else
                 {
-                    glEnable(EnableCap.Blend);
+                    GL.Enable(EnableCap.Blend);
                     CheckLastError();
 
-                    glBlendFuncSeparate(
+                    GL.BlendFuncSeparate(
                         OpenGLFormats.VdToGLBlendFactorSrc(attachment.SourceColorFactor),
                         OpenGLFormats.VdToGLBlendFactorDest(attachment.DestinationColorFactor),
                         OpenGLFormats.VdToGLBlendFactorSrc(attachment.SourceAlphaFactor),
                         OpenGLFormats.VdToGLBlendFactorDest(attachment.DestinationAlphaFactor));
                     CheckLastError();
 
-                    glBlendEquationSeparate(
+                    GL.BlendEquationSeparate(
                         OpenGLFormats.VdToGLBlendEquationMode(attachment.ColorFunction),
                         OpenGLFormats.VdToGLBlendEquationMode(attachment.AlphaFunction));
                     CheckLastError();
@@ -588,60 +587,60 @@ namespace Veldrid.OpenGL
             DepthStencilStateDescription dss = _graphicsPipeline.DepthStencilState;
             if (!dss.DepthTestEnabled)
             {
-                glDisable(EnableCap.DepthTest);
+                GL.Disable(EnableCap.DepthTest);
                 CheckLastError();
             }
             else
             {
-                glEnable(EnableCap.DepthTest);
+                GL.Enable(EnableCap.DepthTest);
                 CheckLastError();
 
-                glDepthFunc(OpenGLFormats.VdToGLDepthFunction(dss.DepthComparison));
+                GL.DepthFunc(OpenGLFormats.VdToGLDepthFunction(dss.DepthComparison));
                 CheckLastError();
             }
 
-            glDepthMask(dss.DepthWriteEnabled);
+            GL.DepthMask(dss.DepthWriteEnabled);
             CheckLastError();
 
             if (dss.StencilTestEnabled)
             {
-                glEnable(EnableCap.StencilTest);
+                GL.Enable(EnableCap.StencilTest);
                 CheckLastError();
 
-                glStencilFuncSeparate(
+                GL.StencilFuncSeparate(
                     CullFaceMode.Front,
                     OpenGLFormats.VdToGLStencilFunction(dss.StencilFront.Comparison),
                     (int)dss.StencilReference,
                     dss.StencilReadMask);
                 CheckLastError();
 
-                glStencilOpSeparate(
+                GL.StencilOpSeparate(
                     CullFaceMode.Front,
                     OpenGLFormats.VdToGLStencilOp(dss.StencilFront.Fail),
                     OpenGLFormats.VdToGLStencilOp(dss.StencilFront.DepthFail),
                     OpenGLFormats.VdToGLStencilOp(dss.StencilFront.Pass));
                 CheckLastError();
 
-                glStencilFuncSeparate(
+                GL.StencilFuncSeparate(
                     CullFaceMode.Back,
                     OpenGLFormats.VdToGLStencilFunction(dss.StencilBack.Comparison),
                     (int)dss.StencilReference,
                     dss.StencilReadMask);
                 CheckLastError();
 
-                glStencilOpSeparate(
+                GL.StencilOpSeparate(
                     CullFaceMode.Back,
                     OpenGLFormats.VdToGLStencilOp(dss.StencilBack.Fail),
                     OpenGLFormats.VdToGLStencilOp(dss.StencilBack.DepthFail),
                     OpenGLFormats.VdToGLStencilOp(dss.StencilBack.Pass));
                 CheckLastError();
 
-                glStencilMask(dss.StencilWriteMask);
+                GL.StencilMask(dss.StencilWriteMask);
                 CheckLastError();
             }
             else
             {
-                glDisable(EnableCap.StencilTest);
+                GL.Disable(EnableCap.StencilTest);
                 CheckLastError();
             }
 
@@ -650,32 +649,32 @@ namespace Veldrid.OpenGL
             RasterizerStateDescription rs = _graphicsPipeline.RasterizerState;
             if (rs.CullMode == FaceCullMode.None)
             {
-                glDisable(EnableCap.CullFace);
+                GL.Disable(EnableCap.CullFace);
                 CheckLastError();
             }
             else
             {
-                glEnable(EnableCap.CullFace);
+                GL.Enable(EnableCap.CullFace);
                 CheckLastError();
 
-                glCullFace(OpenGLFormats.VdToGLCullFaceMode(rs.CullMode));
+                GL.CullFace(OpenGLFormats.VdToGLCullFaceMode(rs.CullMode));
                 CheckLastError();
             }
 
             if (_backend == GraphicsBackend.OpenGL)
             {
-                glPolygonMode(MaterialFace.FrontAndBack, OpenGLFormats.VdToGLPolygonMode(rs.FillMode));
+                GL.PolygonMode(MaterialFace.FrontAndBack, OpenGLFormats.VdToGLPolygonMode(rs.FillMode));
                 CheckLastError();
             }
 
             if (!rs.ScissorTestEnabled)
             {
-                glDisable(EnableCap.ScissorTest);
+                GL.Disable(EnableCap.ScissorTest);
                 CheckLastError();
             }
             else
             {
-                glEnable(EnableCap.ScissorTest);
+                GL.Enable(EnableCap.ScissorTest);
                 CheckLastError();
             }
 
@@ -683,24 +682,24 @@ namespace Veldrid.OpenGL
             {
                 if (!rs.DepthClipEnabled)
                 {
-                    glEnable(EnableCap.DepthClamp);
+                    GL.Enable(EnableCap.DepthClamp);
                     CheckLastError();
                 }
                 else
                 {
-                    glDisable(EnableCap.DepthClamp);
+                    GL.Disable(EnableCap.DepthClamp);
                     CheckLastError();
                 }
             }
 
-            glFrontFace(OpenGLFormats.VdToGLFrontFaceDirection(rs.FrontFace));
+            GL.FrontFace(OpenGLFormats.VdToGLFrontFaceDirection(rs.FrontFace));
             CheckLastError();
 
             // Primitive Topology
             _primitiveType = OpenGLFormats.VdToGLPrimitiveType(_graphicsPipeline.PrimitiveTopology);
 
             // Shader Set
-            glUseProgram(_graphicsPipeline.Program);
+            GL.UseProgram(_graphicsPipeline.Program);
             CheckLastError();
 
             int vertexStridesCount = _graphicsPipeline.VertexStrides.Length;
@@ -721,14 +720,14 @@ namespace Veldrid.OpenGL
             glTex.EnsureResourcesCreated();
             if (_extensions.ARB_DirectStateAccess)
             {
-                glGenerateTextureMipmap(glTex.Texture);
+                GL.GenerateTextureMipmap(glTex.Texture);
                 CheckLastError();
             }
             else
             {
                 TextureTarget target = glTex.TextureTarget;
                 _textureSamplerManager.SetTextureTransient(target, glTex.Texture);
-                glGenerateMipmap(target);
+                GL.GenerateMipmap(target);
                 CheckLastError();
             }
         }
@@ -738,12 +737,7 @@ namespace Veldrid.OpenGL
             if (_extensions.KHR_Debug)
             {
                 int byteCount = Encoding.UTF8.GetByteCount(name);
-                byte* utf8Ptr = stackalloc byte[byteCount];
-                fixed (char* namePtr = name)
-                {
-                    Encoding.UTF8.GetBytes(namePtr, name.Length, utf8Ptr, byteCount);
-                }
-                glPushDebugGroup(DebugSource.DebugSourceApplication, 0, (uint)byteCount, utf8Ptr);
+                GL.PushDebugGroup(DebugSourceExternal.DebugSourceApplication, 0, byteCount, name);
                 CheckLastError();
             }
             else if (_extensions.EXT_DebugMarker)
@@ -754,7 +748,7 @@ namespace Veldrid.OpenGL
                 {
                     Encoding.UTF8.GetBytes(namePtr, name.Length, utf8Ptr, byteCount);
                 }
-                glPushGroupMarker((uint)byteCount, utf8Ptr);
+                GL.PushGroupMarker((uint)byteCount, utf8Ptr);
                 CheckLastError();
             }
         }
@@ -763,12 +757,12 @@ namespace Veldrid.OpenGL
         {
             if (_extensions.KHR_Debug)
             {
-                glPopDebugGroup();
+                GL.PopDebugGroup();
                 CheckLastError();
             }
             else if (_extensions.EXT_DebugMarker)
             {
-                glPopGroupMarker();
+                GL.PopGroupMarker();
                 CheckLastError();
             }
         }
@@ -784,7 +778,7 @@ namespace Veldrid.OpenGL
                     Encoding.UTF8.GetBytes(namePtr, name.Length, utf8Ptr, byteCount);
                 }
 
-                glDebugMessageInsert(
+                GL.DebugMessageInsert(
                     DebugSource.DebugSourceApplication,
                     DebugType.DebugTypeMarker,
                     0,
@@ -802,7 +796,7 @@ namespace Veldrid.OpenGL
                     Encoding.UTF8.GetBytes(namePtr, name.Length, utf8Ptr, byteCount);
                 }
 
-                glInsertEventMarker((uint)byteCount, utf8Ptr);
+                GL.InsertEventMarker((uint)byteCount, utf8Ptr);
                 CheckLastError();
             }
         }
@@ -821,7 +815,7 @@ namespace Veldrid.OpenGL
             }
 
             // Shader Set
-            glUseProgram(_computePipeline.Program);
+            GL.UseProgram(_computePipeline.Program);
             CheckLastError();
         }
 
@@ -890,10 +884,10 @@ namespace Veldrid.OpenGL
                                 throw new VeldridException(
                                     $"Not enough data in uniform buffer \"{name}\" (slot {slot}, element {element}). Shader expects at least {uniformBindingInfo.BlockSize} bytes, but buffer only contains {range.SizeInBytes} bytes");
                             }
-                            glUniformBlockBinding(pipeline.Program, uniformBindingInfo.BlockLocation, ubBaseIndex + ubOffset);
+                            GL.UniformBlockBinding(pipeline.Program, uniformBindingInfo.BlockLocation, ubBaseIndex + ubOffset);
                             CheckLastError();
 
-                            glBindBufferRange(
+                            GL.BindBufferRange(
                                 BufferRangeTarget.UniformBuffer,
                                 ubBaseIndex + ubOffset,
                                 glUB.Buffer,
@@ -918,13 +912,13 @@ namespace Veldrid.OpenGL
                         {
                             if (_backend == GraphicsBackend.OpenGL)
                             {
-                                glShaderStorageBlockBinding(
+                                GL.ShaderStorageBlockBinding(
                                     pipeline.Program,
                                     shaderStorageBinding.StorageBlockBinding,
                                     ssboBaseIndex + ssboOffset);
                                 CheckLastError();
 
-                                glBindBufferRange(
+                                GL.BindBufferRange(
                                     BufferRangeTarget.ShaderStorageBuffer,
                                     ssboBaseIndex + ssboOffset,
                                     glBuffer.Buffer,
@@ -934,7 +928,7 @@ namespace Veldrid.OpenGL
                             }
                             else
                             {
-                                glBindBufferRange(
+                                GL.BindBufferRange(
                                     BufferRangeTarget.ShaderStorageBuffer,
                                     shaderStorageBinding.StorageBlockBinding,
                                     glBuffer.Buffer,
@@ -953,7 +947,7 @@ namespace Veldrid.OpenGL
                         if (pipeline.GetTextureBindingInfo(slot, element, out OpenGLTextureBindingSlotInfo textureBindingInfo))
                         {
                             _textureSamplerManager.SetTexture((uint)textureBindingInfo.RelativeIndex, glTexView);
-                            glUniform1i(textureBindingInfo.UniformLocation, textureBindingInfo.RelativeIndex);
+                            GL.Uniform1i(textureBindingInfo.UniformLocation, textureBindingInfo.RelativeIndex);
                             CheckLastError();
                         }
                         break;
@@ -974,7 +968,7 @@ namespace Veldrid.OpenGL
 
                             if (_backend == GraphicsBackend.OpenGL)
                             {
-                                glBindImageTexture(
+                                GL.BindImageTexture(
                                     (uint)imageBindingInfo.RelativeIndex,
                                     glTexViewRW.Target.Texture,
                                     (int)texViewRW.BaseMipLevel,
@@ -983,12 +977,12 @@ namespace Veldrid.OpenGL
                                     TextureAccess.ReadWrite,
                                     glTexViewRW.GetReadWriteSizedInternalFormat());
                                 CheckLastError();
-                                glUniform1i(imageBindingInfo.UniformLocation, imageBindingInfo.RelativeIndex);
+                                GL.Uniform1i(imageBindingInfo.UniformLocation, imageBindingInfo.RelativeIndex);
                                 CheckLastError();
                             }
                             else
                             {
-                                glBindImageTexture(
+                                GL.BindImageTexture(
                                     (uint)imageBindingInfo.RelativeIndex,
                                     glTexViewRW.Target.Texture,
                                     (int)texViewRW.BaseMipLevel,
@@ -1026,16 +1020,16 @@ namespace Veldrid.OpenGL
             uint sourceFramebuffer = glSourceTex.GetFramebuffer(0, 0);
             uint destinationFramebuffer = glDestinationTex.GetFramebuffer(0, 0);
 
-            glBindFramebuffer(FramebufferTarget.ReadFramebuffer, sourceFramebuffer);
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, sourceFramebuffer);
             CheckLastError();
 
-            glBindFramebuffer(FramebufferTarget.DrawFramebuffer, destinationFramebuffer);
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, destinationFramebuffer);
             CheckLastError();
 
-            glDisable(EnableCap.ScissorTest);
+            GL.Disable(EnableCap.ScissorTest);
             CheckLastError();
 
-            glBlitFramebuffer(
+            GL.BlitFramebuffer(
                 0,
                 0,
                 (int)source.Width,
@@ -1077,7 +1071,7 @@ namespace Veldrid.OpenGL
         {
             if (_backend == GraphicsBackend.OpenGL)
             {
-                glScissorIndexed(
+                GL.ScissorIndexed(
                     index,
                     (int)x,
                     (int)(_fb.Height - (int)height - y),
@@ -1089,7 +1083,7 @@ namespace Veldrid.OpenGL
             {
                 if (index == 0)
                 {
-                    glScissor(
+                    GL.Scissor(
                         (int)x,
                         (int)(_fb.Height - (int)height - y),
                         width,
@@ -1120,20 +1114,20 @@ namespace Veldrid.OpenGL
                 float left = viewport.X;
                 float bottom = _fb.Height - (viewport.Y + viewport.Height);
 
-                glViewportIndexed(index, left, bottom, viewport.Width, viewport.Height);
+                GL.ViewportIndexed(index, left, bottom, viewport.Width, viewport.Height);
                 CheckLastError();
 
-                glDepthRangeIndexed(index, viewport.MinDepth, viewport.MaxDepth);
+                GL.DepthRangeIndexed(index, viewport.MinDepth, viewport.MaxDepth);
                 CheckLastError();
             }
             else
             {
                 if (index == 0)
                 {
-                    glViewport((int)viewport.X, (int)viewport.Y, (uint)viewport.Width, (uint)viewport.Height);
+                    GL.Viewport((int)viewport.X, (int)viewport.Y, (uint)viewport.Width, (uint)viewport.Height);
                     CheckLastError();
 
-                    glDepthRangef(viewport.MinDepth, viewport.MaxDepth);
+                    GL.DepthRangef(viewport.MinDepth, viewport.MaxDepth);
                     CheckLastError();
                 }
             }
@@ -1146,7 +1140,7 @@ namespace Veldrid.OpenGL
 
             if (_extensions.ARB_DirectStateAccess)
             {
-                glNamedBufferSubData(
+                GL.NamedBufferSubData(
                     glBuffer.Buffer,
                     (IntPtr)bufferOffsetInBytes,
                     sizeInBytes,
@@ -1156,7 +1150,7 @@ namespace Veldrid.OpenGL
             else
             {
                 BufferTarget bufferTarget = BufferTarget.CopyWriteBuffer;
-                glBindBuffer(bufferTarget, glBuffer.Buffer);
+                GL.BindBuffer(bufferTarget, glBuffer.Buffer);
                 CheckLastError();
                 glBufferSubData(
                     bufferTarget,
@@ -1211,7 +1205,7 @@ namespace Veldrid.OpenGL
             }
             if (unpackAlignment < 4)
             {
-                glPixelStorei(PixelStoreParameter.UnpackAlignment, (int)unpackAlignment);
+                GL.PixelStore(PixelStoreParameter.UnpackAlignment, (int)unpackAlignment);
                 CheckLastError();
             }
 
@@ -1219,19 +1213,19 @@ namespace Veldrid.OpenGL
             {
                 if (isCompressed)
                 {
-                    glCompressedTexSubImage1D(
+                    GL.CompressedTexSubImage1D(
                         TextureTarget.Texture1D,
                         (int)mipLevel,
                         (int)x,
-                        width,
+                        (int)width,
                         glTex.GLInternalFormat,
-                        rowPitch,
-                        dataPtr.ToPointer());
+                        (int)rowPitch,
+                        (IntPtr)dataPtr.ToPointer());
                     CheckLastError();
                 }
                 else
                 {
-                    glTexSubImage1D(
+                    GL.TexSubImage1D(
                         TextureTarget.Texture1D,
                         (int)mipLevel,
                         (int)x,
@@ -1246,7 +1240,7 @@ namespace Veldrid.OpenGL
             {
                 if (isCompressed)
                 {
-                    glCompressedTexSubImage2D(
+                    GL.CompressedTexSubImage2D(
                         TextureTarget.Texture1DArray,
                         (int)mipLevel,
                         (int)x,
@@ -1277,7 +1271,7 @@ namespace Veldrid.OpenGL
             {
                 if (isCompressed)
                 {
-                    glCompressedTexSubImage2D(
+                    GL.CompressedTexSubImage2D(
                         TextureTarget.Texture2D,
                         (int)mipLevel,
                         (int)x,
@@ -1308,7 +1302,7 @@ namespace Veldrid.OpenGL
             {
                 if (isCompressed)
                 {
-                    glCompressedTexSubImage3D(
+                    GL.CompressedTexSubImage3D(
                         TextureTarget.Texture2DArray,
                         (int)mipLevel,
                         (int)x,
@@ -1343,7 +1337,7 @@ namespace Veldrid.OpenGL
             {
                 if (isCompressed)
                 {
-                    glCompressedTexSubImage3D(
+                    GL.CompressedTexSubImage3D(
                         TextureTarget.Texture3D,
                         (int)mipLevel,
                         (int)x,
@@ -1379,7 +1373,7 @@ namespace Veldrid.OpenGL
                 TextureTarget cubeTarget = GetCubeTarget(arrayLayer);
                 if (isCompressed)
                 {
-                    glCompressedTexSubImage2D(
+                    GL.CompressedTexSubImage2D(
                         cubeTarget,
                         (int)mipLevel,
                         (int)x,
@@ -1410,7 +1404,7 @@ namespace Veldrid.OpenGL
             {
                 if (isCompressed)
                 {
-                    glCompressedTexSubImage3D(
+                    GL.CompressedTexSubImage3D(
                         TextureTarget.TextureCubeMapArray,
                         (int)mipLevel,
                         (int)x,
@@ -1448,7 +1442,7 @@ namespace Veldrid.OpenGL
 
             if (unpackAlignment < 4)
             {
-                glPixelStorei(PixelStoreParameter.UnpackAlignment, 4);
+                GL.PixelStorei(PixelStoreParameter.UnpackAlignment, 4);
                 CheckLastError();
             }
         }
@@ -1484,7 +1478,7 @@ namespace Veldrid.OpenGL
 
             if (_extensions.ARB_DirectStateAccess)
             {
-                glCopyNamedBufferSubData(
+                GL.CopyNamedBufferSubData(
                     srcGLBuffer.Buffer,
                     dstGLBuffer.Buffer,
                     (IntPtr)sourceOffset,
@@ -1493,13 +1487,13 @@ namespace Veldrid.OpenGL
             }
             else
             {
-                glBindBuffer(BufferTarget.CopyReadBuffer, srcGLBuffer.Buffer);
+                GL.BindBuffer(BufferTarget.CopyReadBuffer, srcGLBuffer.Buffer);
                 CheckLastError();
 
-                glBindBuffer(BufferTarget.CopyWriteBuffer, dstGLBuffer.Buffer);
+                GL.BindBuffer(BufferTarget.CopyWriteBuffer, dstGLBuffer.Buffer);
                 CheckLastError();
 
-                glCopyBufferSubData(
+                GL.CopyBufferSubData(
                     BufferTarget.CopyReadBuffer,
                     BufferTarget.CopyWriteBuffer,
                     (IntPtr)sourceOffset,
@@ -1529,7 +1523,7 @@ namespace Veldrid.OpenGL
 
             if (_extensions.CopyImage && depth == 1)
             {
-                // glCopyImageSubData does not work properly when depth > 1, so use the awful roundabout copy.
+                // GL.CopyImageSubData does not work properly when depth > 1, so use the awful roundabout copy.
                 uint srcZOrLayer = Math.Max(srcBaseArrayLayer, srcZ);
                 uint dstZOrLayer = Math.Max(dstBaseArrayLayer, dstZ);
                 uint depthOrLayerCount = Math.Max(depth, layerCount);
@@ -1538,7 +1532,7 @@ namespace Veldrid.OpenGL
                 Util.GetMipDimensions(source, srcMipLevel, out uint mipWidth, out uint mipHeight, out _);
                 width = Math.Min(width, mipWidth);
                 height = Math.Min(height, mipHeight);
-                glCopyImageSubData(
+                GL.CopyImageSubData(
                     srcGLTexture.Texture, srcGLTexture.TextureTarget, (int)srcMipLevel, (int)srcX, (int)srcY, (int)srcZOrLayer,
                     dstGLTexture.Texture, dstGLTexture.TextureTarget, (int)dstMipLevel, (int)dstX, (int)dstY, (int)dstZOrLayer,
                     width, height, depthOrLayerCount);
@@ -1581,7 +1575,7 @@ namespace Veldrid.OpenGL
                 CheckLastError();
 
                 int compressedSize;
-                glGetTexLevelParameteriv(
+                GL.GetTexLevelParameteriv(
                     srcTarget,
                     (int)srcMipLevel,
                     GetTextureParameter.TextureCompressedImageSize,
@@ -1601,7 +1595,7 @@ namespace Veldrid.OpenGL
 
             if (packAlignment < 4)
             {
-                glPixelStorei(PixelStoreParameter.PackAlignment, (int)packAlignment);
+                GL.PixelStorei(PixelStoreParameter.PackAlignment, (int)packAlignment);
                 CheckLastError();
             }
 
@@ -1609,7 +1603,7 @@ namespace Veldrid.OpenGL
             {
                 if (_extensions.ARB_DirectStateAccess)
                 {
-                    glGetCompressedTextureImage(
+                    GL.GetCompressedTextureImage(
                         srcGLTexture.Texture,
                         (int)srcMipLevel,
                         block.SizeInBytes,
@@ -1621,7 +1615,7 @@ namespace Veldrid.OpenGL
                     _textureSamplerManager.SetTextureTransient(srcTarget, srcGLTexture.Texture);
                     CheckLastError();
 
-                    glGetCompressedTexImage(srcTarget, (int)srcMipLevel, block.Data);
+                    GL.GetCompressedTexImage(srcTarget, (int)srcMipLevel, block.Data);
                     CheckLastError();
                 }
 
@@ -1668,7 +1662,7 @@ namespace Veldrid.OpenGL
             {
                 if (_extensions.ARB_DirectStateAccess)
                 {
-                    glGetTextureSubImage(
+                    GL.GetTextureSubImage(
                         srcGLTexture.Texture, (int)srcMipLevel, (int)srcX, (int)srcY, (int)srcZ,
                         width, height, depth,
                         srcGLTexture.GLPixelFormat, srcGLTexture.GLPixelType, block.SizeInBytes, block.Data);
@@ -1680,15 +1674,15 @@ namespace Veldrid.OpenGL
                     {
                         uint curLayer = srcZ + srcLayer + layer;
                         uint curOffset = depthSliceSize * layer;
-                        glGenFramebuffers(1, out uint readFB);
+                        GL.GenFramebuffers(1, out uint readFB);
                         CheckLastError();
-                        glBindFramebuffer(FramebufferTarget.ReadFramebuffer, readFB);
+                        GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, readFB);
                         CheckLastError();
 
                         if (srcGLTexture.ArrayLayers > 1 || srcGLTexture.Type == TextureType.Texture3D
                             || (srcGLTexture.Usage & TextureUsage.Cubemap) != 0)
                         {
-                            glFramebufferTextureLayer(
+                            GL.FramebufferTextureLayer(
                                 FramebufferTarget.ReadFramebuffer,
                                 GLFramebufferAttachment.ColorAttachment0,
                                 srcGLTexture.Texture,
@@ -1698,7 +1692,7 @@ namespace Veldrid.OpenGL
                         }
                         else if (srcGLTexture.Type == TextureType.Texture1D)
                         {
-                            glFramebufferTexture1D(
+                            GL.FramebufferTexture1D(
                                 FramebufferTarget.ReadFramebuffer,
                                 GLFramebufferAttachment.ColorAttachment0,
                                 TextureTarget.Texture1D,
@@ -1708,7 +1702,7 @@ namespace Veldrid.OpenGL
                         }
                         else
                         {
-                            glFramebufferTexture2D(
+                            GL.FramebufferTexture2D(
                                 FramebufferTarget.ReadFramebuffer,
                                 GLFramebufferAttachment.ColorAttachment0,
                                 TextureTarget.Texture2D,
@@ -1718,14 +1712,14 @@ namespace Veldrid.OpenGL
                         }
 
                         CheckLastError();
-                        glReadPixels(
+                        GL.ReadPixels(
                             (int)srcX, (int)srcY,
                             width, height,
                             srcGLTexture.GLPixelFormat,
                             srcGLTexture.GLPixelType,
                             (byte*)block.Data + curOffset);
                         CheckLastError();
-                        glDeleteFramebuffers(1, ref readFB);
+                        GL.DeleteFramebuffers(1, ref readFB);
                         CheckLastError();
                     }
                 }
@@ -1739,7 +1733,7 @@ namespace Veldrid.OpenGL
 
             if (packAlignment < 4)
             {
-                glPixelStorei(PixelStoreParameter.PackAlignment, 4);
+                GL.PixelStorei(PixelStoreParameter.PackAlignment, 4);
                 CheckLastError();
             }
 
@@ -1756,7 +1750,7 @@ namespace Veldrid.OpenGL
             TextureTarget dstTarget = dstGLTexture.TextureTarget;
             if (dstTarget == TextureTarget.Texture2D)
             {
-                glBindFramebuffer(
+                GL.BindFramebuffer(
                     FramebufferTarget.ReadFramebuffer,
                     srcGLTexture.GetFramebuffer(srcMipLevel, srcBaseArrayLayer + layer));
                 CheckLastError();
@@ -1764,7 +1758,7 @@ namespace Veldrid.OpenGL
                 textureSamplerManager.SetTextureTransient(TextureTarget.Texture2D, dstGLTexture.Texture);
                 CheckLastError();
 
-                glCopyTexSubImage2D(
+                GL.CopyTexSubImage2D(
                     TextureTarget.Texture2D,
                     (int)dstMipLevel,
                     (int)dstX, (int)dstY,
@@ -1774,14 +1768,14 @@ namespace Veldrid.OpenGL
             }
             else if (dstTarget == TextureTarget.Texture2DArray)
             {
-                glBindFramebuffer(
+                GL.BindFramebuffer(
                     FramebufferTarget.ReadFramebuffer,
                     srcGLTexture.GetFramebuffer(srcMipLevel, srcBaseArrayLayer + layerCount));
 
                 textureSamplerManager.SetTextureTransient(TextureTarget.Texture2DArray, dstGLTexture.Texture);
                 CheckLastError();
 
-                glCopyTexSubImage3D(
+                GL.CopyTexSubImage3D(
                     TextureTarget.Texture2DArray,
                     (int)dstMipLevel,
                     (int)dstX,
@@ -1800,7 +1794,7 @@ namespace Veldrid.OpenGL
 
                 for (uint i = srcZ; i < srcZ + depth; i++)
                 {
-                    glCopyTexSubImage3D(
+                    GL.CopyTexSubImage3D(
                         TextureTarget.Texture3D,
                         (int)dstMipLevel,
                         (int)dstX,

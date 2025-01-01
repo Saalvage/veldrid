@@ -2,8 +2,8 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using OpenTK.Graphics.OpenGL;
 using Veldrid.OpenGL;
-using Veldrid.OpenGLBinding;
 
 namespace Veldrid
 {
@@ -75,7 +75,7 @@ namespace Veldrid
         public void ExecuteOnGLThread(Action action) => _gd.ExecuteOnGLThread(action);
 
         /// <summary>
-        /// Executes a glFlush and a glFinish command, and waits for their completion.
+        /// Executes a GL.Flush and a GL.Finish command, and waits for their completion.
         /// </summary>
         public void FlushAndFinish() => _gd.FlushAndFinish();
 

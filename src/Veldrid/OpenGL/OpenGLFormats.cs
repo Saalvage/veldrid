@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using Veldrid.OpenGLBinding;
+using OpenTK.Graphics.OpenGL;
+using GLPixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
+using GLPixelType = OpenTK.Graphics.OpenGL.PixelType;
 
 namespace Veldrid.OpenGL
 {

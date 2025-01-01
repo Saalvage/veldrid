@@ -5,7 +5,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
-using NativeLibrary = NativeLibraryLoader.NativeLibrary;
 using Veldrid.MetalBindings;
 
 namespace Veldrid.MTL
@@ -34,8 +33,6 @@ namespace Veldrid.MTL
         private const string UnalignedBufferCopyPipelineMacOSName = "MTL_UnalignedBufferCopy_macOS";
         private const string UnalignedBufferCopyPipelineiOSName = "MTL_UnalignedBufferCopy_iOS";
         private readonly object _unalignedBufferCopyPipelineLock = new object();
-        private readonly NativeLibrary _libSystem;
-        private readonly IntPtr _concreteGlobalBlock;
         private MTLShader _unalignedBufferCopyShader;
         private MTLComputePipelineState _unalignedBufferCopyPipeline;
         private MTLCommandBufferHandler _completionHandler;
@@ -82,8 +79,6 @@ namespace Veldrid.MTL
                 shaderFloat64: false);
             ResourceBindingModel = options.ResourceBindingModel;
 
-            _libSystem = new NativeLibrary("libSystem.dylib");
-            _concreteGlobalBlock = _libSystem.LoadFunction("_NSConcreteGlobalBlock");
             if (MetalFeatures.IsMacOS)
             {
                 _completionHandler = OnCommandBufferCompleted;
@@ -100,7 +95,7 @@ namespace Veldrid.MTL
 
             _completionBlockLiteral = Marshal.AllocHGlobal(Unsafe.SizeOf<BlockLiteral>());
             BlockLiteral* blockPtr = (BlockLiteral*)_completionBlockLiteral;
-            blockPtr->isa = _concreteGlobalBlock;
+            blockPtr->isa = IntPtr.Zero;
             blockPtr->flags = 1 << 28 | 1 << 29;
             blockPtr->invoke = _completionHandlerFuncPtr;
             blockPtr->descriptor = descriptorPtr;

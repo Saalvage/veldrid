@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
-using Veldrid.OpenGLBinding;
+using OpenTK.Graphics.OpenGL;
 using static Veldrid.OpenGL.OpenGLUtil;
-using static Veldrid.OpenGLBinding.OpenGLNative;
 
 namespace Veldrid.OpenGL
 {
@@ -206,7 +205,7 @@ namespace Veldrid.OpenGL
                 return;
             }
 
-            glGenTextures(1, out _textureView);
+            GL.GenTextures(1, out _textureView);
             CheckLastError();
 
             TextureTarget originalTarget = Target.TextureTarget;
@@ -282,7 +281,7 @@ namespace Veldrid.OpenGL
                 Format,
                 (Target.Usage & TextureUsage.DepthStencil) == TextureUsage.DepthStencil);
             Debug.Assert(Target.Created);
-            glTextureView(
+            GL.TextureView(
                 _textureView,
                 TextureTarget,
                 Target.Texture,
@@ -310,7 +309,7 @@ namespace Veldrid.OpenGL
                 _disposed = true;
                 if (_textureView != 0)
                 {
-                    glDeleteTextures(1, ref _textureView);
+                    GL.DeleteTextures(1, ref _textureView);
                     CheckLastError();
                 }
             }

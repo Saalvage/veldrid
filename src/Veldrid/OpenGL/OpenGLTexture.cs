@@ -1,8 +1,7 @@
-﻿using static Veldrid.OpenGLBinding.OpenGLNative;
-using static Veldrid.OpenGL.OpenGLUtil;
-using Veldrid.OpenGLBinding;
+﻿using static Veldrid.OpenGL.OpenGLUtil;
 using System;
 using System.Diagnostics;
+using OpenTK.Graphics.OpenGL;
 
 namespace Veldrid.OpenGL
 {
@@ -171,8 +170,8 @@ namespace Veldrid.OpenGL
 
         public override bool IsDisposed => _disposeRequested;
 
-        public GLPixelFormat GLPixelFormat { get; }
-        public GLPixelType GLPixelType { get; }
+        public PixelFormat GLPixelFormat { get; }
+        public PixelType GLPixelType { get; }
         public PixelInternalFormat GLInternalFormat { get; }
         public TextureTarget TextureTarget { get; internal set; }
 
@@ -200,13 +199,13 @@ namespace Veldrid.OpenGL
             if (dsa)
             {
                 uint texture;
-                glCreateTextures(TextureTarget, 1, &texture);
+                GL.CreateTextures(TextureTarget, 1, &texture);
                 CheckLastError();
                 _texture = texture;
             }
             else
             {
-                glGenTextures(1, out _texture);
+                GL.GenTextures(1, out _texture);
                 CheckLastError();
 
                 _gd.TextureSamplerManager.SetTextureTransient(TextureTarget, _texture);
@@ -219,7 +218,7 @@ namespace Veldrid.OpenGL
             {
                 if (dsa)
                 {
-                    glTextureStorage1D(
+                    GL.TextureStorage1D(
                         _texture,
                         MipLevels,
                         OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -228,7 +227,7 @@ namespace Veldrid.OpenGL
                 }
                 else if (_gd.Extensions.TextureStorage)
                 {
-                    glTexStorage1D(
+                    GL.TexStorage1D(
                         TextureTarget.Texture1D,
                         MipLevels,
                         OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -241,7 +240,7 @@ namespace Veldrid.OpenGL
                     for (int currentLevel = 0; currentLevel < MipLevels; currentLevel++)
                     {
                         // Set size, load empty data into texture
-                        glTexImage1D(
+                        GL.TexImage1D(
                             TextureTarget.Texture1D,
                             currentLevel,
                             GLInternalFormat,
@@ -261,7 +260,7 @@ namespace Veldrid.OpenGL
                 uint heightOrArrayLayers = TextureTarget == TextureTarget.Texture2D ? Height : ArrayLayers;
                 if (dsa)
                 {
-                    glTextureStorage2D(
+                    GL.TextureStorage2D(
                         _texture,
                         MipLevels,
                         OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -271,7 +270,7 @@ namespace Veldrid.OpenGL
                 }
                 else if (_gd.Extensions.TextureStorage)
                 {
-                    glTexStorage2D(
+                    GL.TexStorage2D(
                         TextureTarget,
                         MipLevels,
                         OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -286,7 +285,7 @@ namespace Veldrid.OpenGL
                     for (int currentLevel = 0; currentLevel < MipLevels; currentLevel++)
                     {
                         // Set size, load empty data into texture
-                        glTexImage2D(
+                        GL.TexImage2D(
                             TextureTarget,
                             currentLevel,
                             GLInternalFormat,
@@ -310,7 +309,7 @@ namespace Veldrid.OpenGL
             {
                 if (dsa)
                 {
-                    glTextureStorage3D(
+                    GL.TextureStorage3D(
                         _texture,
                         MipLevels,
                         OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -321,7 +320,7 @@ namespace Veldrid.OpenGL
                 }
                 else if (_gd.Extensions.TextureStorage)
                 {
-                    glTexStorage3D(
+                    GL.TexStorage3D(
                         TextureTarget.Texture2DArray,
                         MipLevels,
                         OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -336,7 +335,7 @@ namespace Veldrid.OpenGL
                     uint levelHeight = Height;
                     for (int currentLevel = 0; currentLevel < MipLevels; currentLevel++)
                     {
-                        glTexImage3D(
+                        GL.TexImage3D(
                             TextureTarget.Texture2DArray,
                             currentLevel,
                             GLInternalFormat,
@@ -358,7 +357,7 @@ namespace Veldrid.OpenGL
             {
                 if (dsa)
                 {
-                    glTextureStorage2DMultisample(
+                    GL.TextureStorage2DMultisample(
                         _texture,
                         FormatHelpers.GetSampleCountUInt32(SampleCount),
                         OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -371,7 +370,7 @@ namespace Veldrid.OpenGL
                 {
                     if (_gd.Extensions.TextureStorageMultisample)
                     {
-                        glTexStorage2DMultisample(
+                        GL.TexStorage2DMultisample(
                             TextureTarget.Texture2DMultisample,
                             FormatHelpers.GetSampleCountUInt32(SampleCount),
                             OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -382,7 +381,7 @@ namespace Veldrid.OpenGL
                     }
                     else
                     {
-                        glTexImage2DMultiSample(
+                        GL.TexImage2DMultiSample(
                             TextureTarget.Texture2DMultisample,
                             FormatHelpers.GetSampleCountUInt32(SampleCount),
                             GLInternalFormat,
@@ -397,7 +396,7 @@ namespace Veldrid.OpenGL
             {
                 if (dsa)
                 {
-                    glTextureStorage3DMultisample(
+                    GL.TextureStorage3DMultisample(
                         _texture,
                         FormatHelpers.GetSampleCountUInt32(SampleCount),
                         OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -411,7 +410,7 @@ namespace Veldrid.OpenGL
                 {
                     if (_gd.Extensions.TextureStorageMultisample)
                     {
-                        glTexStorage3DMultisample(
+                        GL.TexStorage3DMultisample(
                             TextureTarget.Texture2DMultisampleArray,
                             FormatHelpers.GetSampleCountUInt32(SampleCount),
                             OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -422,7 +421,7 @@ namespace Veldrid.OpenGL
                     }
                     else
                     {
-                        glTexImage3DMultisample(
+                        GL.TexImage3DMultisample(
                             TextureTarget.Texture2DMultisampleArray,
                             FormatHelpers.GetSampleCountUInt32(SampleCount),
                             GLInternalFormat,
@@ -438,7 +437,7 @@ namespace Veldrid.OpenGL
             {
                 if (dsa)
                 {
-                    glTextureStorage2D(
+                    GL.TextureStorage2D(
                         _texture,
                         MipLevels,
                         OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -448,7 +447,7 @@ namespace Veldrid.OpenGL
                 }
                 else if (_gd.Extensions.TextureStorage)
                 {
-                    glTexStorage2D(
+                    GL.TexStorage2D(
                         TextureTarget.TextureCubeMap,
                         MipLevels,
                         OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -465,7 +464,7 @@ namespace Veldrid.OpenGL
                         for (int face = 0; face < 6; face++)
                         {
                             // Set size, load empty data into texture
-                            glTexImage2D(
+                            GL.TexImage2D(
                                 TextureTarget.TextureCubeMapPositiveX + face,
                                 currentLevel,
                                 GLInternalFormat,
@@ -487,7 +486,7 @@ namespace Veldrid.OpenGL
             {
                 if (dsa)
                 {
-                    glTextureStorage3D(
+                    GL.TextureStorage3D(
                         _texture,
                         MipLevels,
                         OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -498,7 +497,7 @@ namespace Veldrid.OpenGL
                 }
                 else if (_gd.Extensions.TextureStorage)
                 {
-                    glTexStorage3D(
+                    GL.TexStorage3D(
                         TextureTarget.TextureCubeMapArray,
                         MipLevels,
                         OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -516,7 +515,7 @@ namespace Veldrid.OpenGL
                         for (int face = 0; face < 6; face++)
                         {
                             // Set size, load empty data into texture
-                            glTexImage3D(
+                            GL.TexImage3D(
                                 TextureTarget.Texture2DArray,
                                 currentLevel,
                                 GLInternalFormat,
@@ -539,7 +538,7 @@ namespace Veldrid.OpenGL
             {
                 if (dsa)
                 {
-                    glTextureStorage3D(
+                    GL.TextureStorage3D(
                         _texture,
                         MipLevels,
                         OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -550,7 +549,7 @@ namespace Veldrid.OpenGL
                 }
                 else if (_gd.Extensions.TextureStorage)
                 {
-                    glTexStorage3D(
+                    GL.TexStorage3D(
                         TextureTarget.Texture3D,
                         MipLevels,
                         OpenGLFormats.VdToGLSizedInternalFormat(Format, isDepthTex),
@@ -569,7 +568,7 @@ namespace Veldrid.OpenGL
                         for (int face = 0; face < 6; face++)
                         {
                             // Set size, load empty data into texture
-                            glTexImage3D(
+                            GL.TexImage3D(
                                 TextureTarget.Texture3D,
                                 currentLevel,
                                 GLInternalFormat,
@@ -609,17 +608,17 @@ namespace Veldrid.OpenGL
                     ? FramebufferTarget.DrawFramebuffer
                     : FramebufferTarget.ReadFramebuffer;
 
-                glGenFramebuffers(1, out _framebuffers[subresource]);
+                GL.GenFramebuffers(1, out _framebuffers[subresource]);
                 CheckLastError();
 
-                glBindFramebuffer(framebufferTarget, _framebuffers[subresource]);
+                GL.BindFramebuffer(framebufferTarget, _framebuffers[subresource]);
                 CheckLastError();
 
                 _gd.TextureSamplerManager.SetTextureTransient(TextureTarget, Texture);
 
                 if (TextureTarget == TextureTarget.Texture2D || TextureTarget == TextureTarget.Texture2DMultisample)
                 {
-                    glFramebufferTexture2D(
+                    GL.FramebufferTexture2D(
                         framebufferTarget,
                         GLFramebufferAttachment.ColorAttachment0,
                         TextureTarget,
@@ -631,7 +630,7 @@ namespace Veldrid.OpenGL
                     || TextureTarget == TextureTarget.Texture2DMultisampleArray
                     || TextureTarget == TextureTarget.Texture3D)
                 {
-                    glFramebufferTextureLayer(
+                    GL.FramebufferTextureLayer(
                         framebufferTarget,
                         GLFramebufferAttachment.ColorAttachment0,
                         Texture,
@@ -640,7 +639,7 @@ namespace Veldrid.OpenGL
                     CheckLastError();
                 }
 
-                FramebufferErrorCode errorCode = glCheckFramebufferStatus(framebufferTarget);
+                FramebufferErrorCode errorCode = GL.CheckFramebufferStatus(framebufferTarget);
                 if (errorCode != FramebufferErrorCode.FramebufferComplete)
                 {
                     throw new VeldridException("Failed to create texture copy FBO: " + errorCode);
@@ -655,14 +654,14 @@ namespace Veldrid.OpenGL
             Debug.Assert(Created);
             if (_pbos[subresource] == 0)
             {
-                glGenBuffers(1, out _pbos[subresource]);
+                GL.GenBuffers(1, out _pbos[subresource]);
                 CheckLastError();
 
-                glBindBuffer(BufferTarget.CopyWriteBuffer, _pbos[subresource]);
+                GL.BindBuffer(BufferTarget.CopyWriteBuffer, _pbos[subresource]);
                 CheckLastError();
 
                 uint dataSize = Width * Height * FormatSizeHelpers.GetSizeInBytes(Format);
-                glBufferData(
+                GL.BufferData(
                     BufferTarget.CopyWriteBuffer,
                     (UIntPtr)dataSize,
                     null,
@@ -696,14 +695,14 @@ namespace Veldrid.OpenGL
             {
                 _disposed = true;
 
-                glDeleteTextures(1, ref _texture);
+                GL.DeleteTextures(1, ref _texture);
                 CheckLastError();
 
                 for (int i = 0; i < _framebuffers.Length; i++)
                 {
                     if (_framebuffers[i] != 0)
                     {
-                        glDeleteFramebuffers(1, ref _framebuffers[i]);
+                        GL.DeleteFramebuffers(1, ref _framebuffers[i]);
                     }
                 }
 
@@ -711,7 +710,7 @@ namespace Veldrid.OpenGL
                 {
                     if (_pbos[i] != 0)
                     {
-                        glDeleteBuffers(1, ref _pbos[i]);
+                        GL.DeleteBuffers(1, ref _pbos[i]);
                     }
                 }
             }

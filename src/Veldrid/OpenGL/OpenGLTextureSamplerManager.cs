@@ -1,7 +1,6 @@
-﻿using static Veldrid.OpenGLBinding.OpenGLNative;
-using static Veldrid.OpenGL.OpenGLUtil;
-using Veldrid.OpenGLBinding;
+﻿using static Veldrid.OpenGL.OpenGLUtil;
 using System;
+using OpenTK.Graphics.OpenGL;
 
 namespace Veldrid.OpenGL
 {
@@ -21,7 +20,7 @@ namespace Veldrid.OpenGL
         {
             _dsaAvailable = extensions.ARB_DirectStateAccess;
             int maxTextureUnits;
-            glGetIntegerv(GetPName.MaxCombinedTextureImageUnits, &maxTextureUnits);
+            GL.GetIntegerv(GetPName.MaxCombinedTextureImageUnits, &maxTextureUnits);
             CheckLastError();
             _maxTextureUnits = Math.Max(maxTextureUnits, 8); // OpenGL spec indicates that implementations must support at least 8.
             _textureUnitTextures = new OpenGLTextureView[_maxTextureUnits];
@@ -38,13 +37,13 @@ namespace Veldrid.OpenGL
             {
                 if (_dsaAvailable)
                 {
-                    glBindTextureUnit(textureUnit, textureID);
+                    GL.BindTextureUnit(textureUnit, textureID);
                     CheckLastError();
                 }
                 else
                 {
                     SetActiveTextureUnit(textureUnit);
-                    glBindTexture(textureView.TextureTarget, textureID);
+                    GL.BindTexture(textureView.TextureTarget, textureID);
                     CheckLastError();
                 }
 
@@ -57,7 +56,7 @@ namespace Veldrid.OpenGL
         {
             _textureUnitTextures[_lastTextureUnit] = null;
             SetActiveTextureUnit(_lastTextureUnit);
-            glBindTexture(target, texture);
+            GL.BindTexture(target, texture);
             CheckLastError();
         }
 
@@ -73,7 +72,7 @@ namespace Veldrid.OpenGL
                 }
 
                 uint samplerID = mipmapped ? sampler.MipmapSampler : sampler.NoMipmapSampler;
-                glBindSampler(textureUnit, samplerID);
+                GL.BindSampler(textureUnit, samplerID);
                 CheckLastError();
 
                 _textureUnitSamplers[textureUnit] = new BoundSamplerStateInfo(sampler, mipmapped);
@@ -88,7 +87,7 @@ namespace Veldrid.OpenGL
         {
             if (_currentActiveUnit != textureUnit)
             {
-                glActiveTexture(TextureUnit.Texture0 + (int)textureUnit);
+                GL.ActiveTexture(TextureUnit.Texture0 + (int)textureUnit);
                 CheckLastError();
                 _currentActiveUnit = textureUnit;
             }
@@ -100,7 +99,7 @@ namespace Veldrid.OpenGL
             {
                 OpenGLSampler sampler = _textureUnitSamplers[textureUnit].Sampler;
                 uint samplerID = mipmapped ? sampler.MipmapSampler : sampler.NoMipmapSampler;
-                glBindSampler(textureUnit, samplerID);
+                GL.BindSampler(textureUnit, samplerID);
                 CheckLastError();
 
                 _textureUnitSamplers[textureUnit].Mipmapped = mipmapped;

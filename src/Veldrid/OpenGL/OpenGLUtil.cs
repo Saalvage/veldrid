@@ -1,8 +1,8 @@
 using System;
 ﻿using System.Diagnostics;
 using System.Text;
-using Veldrid.OpenGLBinding;
-using static Veldrid.OpenGLBinding.OpenGLNative;
+using OpenTK.Graphics.OpenGL;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Veldrid.OpenGL
 {
@@ -14,7 +14,7 @@ namespace Veldrid.OpenGL
         [DebuggerNonUserCode]
         internal static void CheckLastError()
         {
-            uint error = glGetError();
+            ErrorCode error = GL.GetError();
             if (error != 0)
             {
                 if (Debugger.IsAttached)
@@ -28,34 +28,22 @@ namespace Veldrid.OpenGL
 
         internal static unsafe void SetObjectLabel(ObjectLabelIdentifier identifier, uint target, string name)
         {
-            if (HasGlObjectLabel)
+            int byteCount = Encoding.UTF8.GetByteCount(name);
+            if (MaxLabelLength == null)
             {
-                int byteCount = Encoding.UTF8.GetByteCount(name);
-                if (MaxLabelLength == null)
-                {
-                    int maxLabelLength = -1;
-                    glGetIntegerv(GetPName.MaxLabelLength, &maxLabelLength);
-                    CheckLastError();
-                    MaxLabelLength = maxLabelLength;
-                }
-                if (byteCount >= MaxLabelLength)
-                {
-                    name = name.Substring(0, MaxLabelLength.Value - 4) + "...";
-                    byteCount = Encoding.UTF8.GetByteCount(name);
-                }
-
-                Span<byte> utf8bytes = stackalloc byte[128];
-                if(byteCount + 1 > 128) utf8bytes = new byte[byteCount + 1];
-
-                fixed (char* namePtr = name)
-                fixed (byte* utf8bytePtr = utf8bytes)
-                {
-                    int written = Encoding.UTF8.GetBytes(namePtr, name.Length, utf8bytePtr, byteCount);
-                    utf8bytePtr[written] = 0;
-                    glObjectLabel(identifier, target, (uint)byteCount, utf8bytePtr);
-                    CheckLastError();
-                }
+                int maxLabelLength = -1;
+                GL.GetInteger(GetPName.MaxLabelLength, &maxLabelLength);
+                CheckLastError();
+                MaxLabelLength = maxLabelLength;
             }
+            if (byteCount >= MaxLabelLength)
+            {
+                name = name.Substring(0, MaxLabelLength.Value - 4) + "...";
+                byteCount = Encoding.UTF8.GetByteCount(name);
+            }
+
+            GL.ObjectLabel(identifier, target, byteCount, name);
+            CheckLastError();
         }
 
         internal static TextureTarget GetTextureTarget(OpenGLTexture glTex, uint arrayLayer)
@@ -79,7 +67,7 @@ namespace Veldrid.OpenGL
                 }
             }
 
-            return glTex.TextureTarget;
+            return GL.Tex.TextureTarget;
         }
     }
 }

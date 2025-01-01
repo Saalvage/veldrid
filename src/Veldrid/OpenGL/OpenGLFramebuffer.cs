@@ -1,6 +1,6 @@
-﻿using static Veldrid.OpenGLBinding.OpenGLNative;
+﻿using OpenTK.Graphics.OpenGL;
 using static Veldrid.OpenGL.OpenGLUtil;
-using Veldrid.OpenGLBinding;
+using GLFramebufferAttachment = OpenTK.Graphics.OpenGL.FramebufferAttachment;
 
 namespace Veldrid.OpenGL
 {
@@ -46,13 +46,13 @@ namespace Veldrid.OpenGL
 
         public void CreateGLResources()
         {
-            glGenFramebuffers(1, out _framebuffer);
+            GL.GenFramebuffers(1, out _framebuffer);
             CheckLastError();
 
-            glBindFramebuffer(FramebufferTarget.Framebuffer, _framebuffer);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, _framebuffer);
             CheckLastError();
 
-            uint colorCount = (uint)ColorTargets.Count;
+            int colorCount = ColorTargets.Count;
 
             if (colorCount > 0)
             {
@@ -69,7 +69,7 @@ namespace Veldrid.OpenGL
 
                     if (glTex.ArrayLayers == 1)
                     {
-                        glFramebufferTexture2D(
+                        GL.FramebufferTexture2D(
                             FramebufferTarget.Framebuffer,
                             GLFramebufferAttachment.ColorAttachment0 + i,
                             textureTarget,
@@ -79,7 +79,7 @@ namespace Veldrid.OpenGL
                     }
                     else
                     {
-                        glFramebufferTextureLayer(
+                        GL.FramebufferTextureLayer(
                             FramebufferTarget.Framebuffer,
                             GLFramebufferAttachment.ColorAttachment0 + i,
                             (uint)glTex.Texture,
@@ -89,12 +89,12 @@ namespace Veldrid.OpenGL
                     }
                 }
 
-                DrawBuffersEnum* bufs = stackalloc DrawBuffersEnum[(int)colorCount];
+                DrawBuffersEnum* bufs = stackalloc DrawBuffersEnum[colorCount];
                 for (int i = 0; i < colorCount; i++)
                 {
                     bufs[i] = DrawBuffersEnum.ColorAttachment0 + i;
                 }
-                glDrawBuffers(colorCount, bufs);
+                GL.DrawBuffers(colorCount, bufs);
                 CheckLastError();
             }
 
@@ -121,7 +121,7 @@ namespace Veldrid.OpenGL
 
                 if (glDepthTex.ArrayLayers == 1)
                 {
-                    glFramebufferTexture2D(
+                    GL.FramebufferTexture2D(
                         FramebufferTarget.Framebuffer,
                         framebufferAttachment,
                         depthTarget,
@@ -131,7 +131,7 @@ namespace Veldrid.OpenGL
                 }
                 else
                 {
-                    glFramebufferTextureLayer(
+                    GL.FramebufferTextureLayer(
                         FramebufferTarget.Framebuffer,
                         framebufferAttachment,
                         glDepthTex.Texture,
@@ -142,7 +142,7 @@ namespace Veldrid.OpenGL
 
             }
 
-            FramebufferErrorCode errorCode = glCheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            FramebufferErrorCode errorCode = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
             CheckLastError();
             if (errorCode != FramebufferErrorCode.FramebufferComplete)
             {
@@ -167,7 +167,7 @@ namespace Veldrid.OpenGL
             {
                 _disposed = true;
                 uint framebuffer = _framebuffer;
-                glDeleteFramebuffers(1, ref framebuffer);
+                GL.DeleteFramebuffers(1, ref framebuffer);
                 CheckLastError();
             }
         }
