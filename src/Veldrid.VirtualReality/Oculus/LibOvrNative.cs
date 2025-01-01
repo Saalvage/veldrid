@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Vulkan;
 
 namespace Veldrid.VirtualReality.Oculus
 {
@@ -12,16 +11,16 @@ namespace Veldrid.VirtualReality.Oculus
         private const string LibName32 = "LibOVRRT32_1.dll";
         private const string LibName64 = "LibOVRRT64_1.dll";
 
-        private static readonly NativeLibrary s_libovrrt = LoadLibAndFunctions();
+        private static readonly IntPtr s_libovrrt = LoadLibAndFunctions();
 
         internal static bool LibOvrLoadedSuccessfully() => s_libovrrt != null;
 
-        private static NativeLibrary LoadLibAndFunctions()
+        private static IntPtr LoadLibAndFunctions()
         {
             string libName = Environment.Is64BitProcess ? LibName64 : LibName32;
             try
             {
-                NativeLibrary lib = NativeLibrary.Load(libName);
+                IntPtr lib = NativeLibrary.Load(libName);
 
                 p_ovr_Initialize = LoadFunc<ovr_Initialize_t>("ovr_Initialize");
                 p_ovr_Shutdown = LoadFunc<ovr_Shutdown_t>("ovr_Shutdown");
@@ -65,13 +64,13 @@ namespace Veldrid.VirtualReality.Oculus
                 p_ovr_GetDeviceExtensionsVk = LoadFunc<ovr_GetDeviceExtensionsVk_t>("ovr_GetDeviceExtensionsVk");
                 p_ovr_DestroyMirrorTexture = LoadFunc<ovr_DestroyMirrorTexture_t>("ovr_DestroyMirrorTexture");
 
-                T LoadFunc<T>(string name) => Marshal.GetDelegateForFunctionPointer<T>(lib.LoadFunctionPointer(name));
+                T LoadFunc<T>(string name) => Marshal.GetDelegateForFunctionPointer<T>(NativeLibrary.GetExport(lib, name));
 
                 return lib;
             }
             catch
             {
-                return null;
+                return IntPtr.Zero;
             }
         }
 
