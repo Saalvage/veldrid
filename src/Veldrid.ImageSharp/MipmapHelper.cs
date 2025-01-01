@@ -46,7 +46,8 @@ namespace Veldrid.ImageSharp
             {
                 int newWidth = Math.Max(1, currentWidth / 2);
                 int newHeight = Math.Max(1, currentHeight / 2);
-                Image<Rgba32> newImage = baseImage.Clone(context => context.Resize(newWidth, newHeight, KnownResamplers.Lanczos3));
+                Image<Rgba32> newImage = baseImage.Clone(ConfigurationHelper.Configuration,
+                    context => context.Resize(newWidth, newHeight, KnownResamplers.Lanczos3));
                 Debug.Assert(i < mipLevelCount);
                 mipLevels[i] = newImage;
 

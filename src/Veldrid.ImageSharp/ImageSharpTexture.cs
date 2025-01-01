@@ -1,10 +1,9 @@
 ﻿using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
+using System.Buffers;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace Veldrid.ImageSharp
 {
@@ -42,12 +41,12 @@ namespace Veldrid.ImageSharp
         /// </summary>
         public uint MipLevels => (uint)Images.Length;
 
-        public ImageSharpTexture(string path) : this(Image.Load<Rgba32>(path), true) { }
-        public ImageSharpTexture(string path, bool mipmap) : this(Image.Load<Rgba32>(path), mipmap) { }
-        public ImageSharpTexture(string path, bool mipmap, bool srgb) : this(Image.Load<Rgba32>(path), mipmap, srgb) { }
-        public ImageSharpTexture(Stream stream) : this(Image.Load<Rgba32>(stream), true) { }
-        public ImageSharpTexture(Stream stream, bool mipmap) : this(Image.Load<Rgba32>(stream), mipmap) { }
-        public ImageSharpTexture(Stream stream, bool mipmap, bool srgb) : this(Image.Load<Rgba32>(stream), mipmap, srgb) { }
+        public ImageSharpTexture(string path) : this(Image.Load<Rgba32>(ConfigurationHelper.Configuration, path), true) { }
+        public ImageSharpTexture(string path, bool mipmap) : this(Image.Load<Rgba32>(ConfigurationHelper.Configuration, path), mipmap) { }
+        public ImageSharpTexture(string path, bool mipmap, bool srgb) : this(Image.Load<Rgba32>(ConfigurationHelper.Configuration, path), mipmap, srgb) { }
+        public ImageSharpTexture(Stream stream) : this(Image.Load<Rgba32>(ConfigurationHelper.Configuration, stream), true) { }
+        public ImageSharpTexture(Stream stream, bool mipmap) : this(Image.Load<Rgba32>(ConfigurationHelper.Configuration, stream), mipmap) { }
+        public ImageSharpTexture(Stream stream, bool mipmap, bool srgb) : this(Image.Load<Rgba32>(ConfigurationHelper.Configuration, stream), mipmap, srgb) { }
         public ImageSharpTexture(Image<Rgba32> image, bool mipmap = true) : this(image, mipmap, false) { }
         public ImageSharpTexture(Image<Rgba32> image, bool mipmap, bool srgb)
         {
@@ -80,35 +79,32 @@ namespace Veldrid.ImageSharp
             for (uint level = 0; level < MipLevels; level++)
             {
                 Image<Rgba32> image = Images[level];
-                if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixelSpan))
+                if (!image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> pixelData))
                 {
                     throw new VeldridException("Unable to get image pixelspan.");
                 }
-                fixed (void* pin = &MemoryMarshal.GetReference(pixelSpan))
+                using MemoryHandle pin = pixelData.Pin();
+                MappedResource map = gd.Map(staging, MapMode.Write, level);
+                uint rowWidth = (uint)(image.Width * 4);
+                if (rowWidth == map.RowPitch)
                 {
-                    MappedResource map = gd.Map(staging, MapMode.Write, level);
-                    uint rowWidth = (uint)(image.Width * 4);
-                    if (rowWidth == map.RowPitch)
-                    {
-                        Unsafe.CopyBlock(map.Data.ToPointer(), pin, (uint)(image.Width * image.Height * 4));
-                    }
-                    else
-                    {
-                        for (uint y = 0; y < image.Height; y++)
-                        {
-                            byte* dstStart = (byte*)map.Data.ToPointer() + y * map.RowPitch;
-                            byte* srcStart = (byte*)pin + y * rowWidth;
-                            Unsafe.CopyBlock(dstStart, srcStart, rowWidth);
-                        }
-                    }
-                    gd.Unmap(staging, level);
-
-                    cl.CopyTexture(
-                        staging, 0, 0, 0, level, 0,
-                        ret, 0, 0, 0, level, 0,
-                        (uint)image.Width, (uint)image.Height, 1, 1);
-
+                    Unsafe.CopyBlock(map.Data.ToPointer(), pin.Pointer, (uint)(image.Width * image.Height * 4));
                 }
+                else
+                {
+                    for (uint y = 0; y < image.Height; y++)
+                    {
+                        byte* dstStart = (byte*)map.Data.ToPointer() + y * map.RowPitch;
+                        byte* srcStart = (byte*)pin.Pointer + y * rowWidth;
+                        Unsafe.CopyBlock(dstStart, srcStart, rowWidth);
+                    }
+                }
+                gd.Unmap(staging, level);
+
+                cl.CopyTexture(
+                    staging, 0, 0, 0, level, 0,
+                    ret, 0, 0, 0, level, 0,
+                    (uint)image.Width, (uint)image.Height, 1, 1);
             }
             cl.End();
 
@@ -126,25 +122,23 @@ namespace Veldrid.ImageSharp
             for (int level = 0; level < MipLevels; level++)
             {
                 Image<Rgba32> image = Images[level];
-                if (!image.TryGetSinglePixelSpan(out Span<Rgba32> pixelSpan))
+                if (!image.DangerousTryGetSinglePixelMemory(out Memory<Rgba32> pixelData))
                 {
                     throw new VeldridException("Unable to get image pixelspan.");
                 }
-                fixed (void* pin = &MemoryMarshal.GetReference(pixelSpan))
-                {
-                    gd.UpdateTexture(
-                        tex,
-                        (IntPtr)pin,
-                        (uint)(PixelSizeInBytes * image.Width * image.Height),
-                        0,
-                        0,
-                        0,
-                        (uint)image.Width,
-                        (uint)image.Height,
-                        1,
-                        (uint)level,
-                        0);
-                }
+                using MemoryHandle pin = pixelData.Pin();
+                gd.UpdateTexture(
+                    tex,
+                    (IntPtr)pin.Pointer,
+                    (uint)(PixelSizeInBytes * image.Width * image.Height),
+                    0,
+                    0,
+                    0,
+                    (uint)image.Width,
+                    (uint)image.Height,
+                    1,
+                    (uint)level,
+                    0);
             }
 
             return tex;
